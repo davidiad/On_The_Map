@@ -122,8 +122,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
                 */
                 
                 // Why even go thru a locally created StudentInfo? Why not save directly to model? eg:
-                OnTheMapData.sharedInstance.studentInfoToPost?.lat = localSearchResponse.boundingRegion.center.latitude
-                OnTheMapData.sharedInstance.studentInfoToPost?.lon = localSearchResponse.boundingRegion.center.longitude
+                OnTheMapData.sharedInstance.studentInfoToPost?.lat = localSearchResponse!.boundingRegion.center.latitude
+                OnTheMapData.sharedInstance.studentInfoToPost?.lon = localSearchResponse!.boundingRegion.center.longitude
                 OnTheMapData.sharedInstance.studentInfoToPost?.location = self.locationTextField.text
                 
                 self.configureUIForState(UIState.Submit)
@@ -149,8 +149,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func submit(sender: AnyObject) {
-        if let link = linkTextField.text {
-            OnTheMapData.sharedInstance.studentInfoToPost?.link = NSURL(string: linkTextField.text)
+        if let _ = linkTextField.text {
+            OnTheMapData.sharedInstance.studentInfoToPost?.link = NSURL(string: linkTextField.text!)
         }
         //client.postOnTheMap(OnTheMapData.sharedInstance.studentInfoToPost!)
         client.postOnTheMap(OnTheMapData.sharedInstance.studentInfoToPost!) {success, errorString, error in
