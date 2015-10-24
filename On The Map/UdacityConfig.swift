@@ -118,7 +118,7 @@ class UdacityConfig: NSObject, NSCoding {
     let ProfileSizesKey = "config.profile_size_key"
     let DateUpdatedKey = "config.date_update_key"
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         baseImageURLString = aDecoder.decodeObjectForKey(BaseImageURLStringKey) as! String
         secureBaseImageURLString = aDecoder.decodeObjectForKey(SecureBaseImageURLStringKey) as! String
         posterSizes = aDecoder.decodeObjectForKey(PosterSizesKey) as! [String]

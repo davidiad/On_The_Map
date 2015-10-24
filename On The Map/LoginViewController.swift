@@ -53,7 +53,7 @@ class LoginViewController: UIViewController {
                 //performSegueWithIdentifier("loginSegue", sender: sender)
             } else {
                 // handle error
-                println("error with login")
+                print("error with login")
             }
         }
     }
@@ -99,16 +99,16 @@ println("error with login")
     */
     
     func shakeView(view: UIView){
-        var shake:CABasicAnimation = CABasicAnimation(keyPath: "position")
+        let shake:CABasicAnimation = CABasicAnimation(keyPath: "position")
         shake.duration = 0.1
         shake.repeatCount = 2
         shake.autoreverses = true
         
-        var from_point:CGPoint = CGPointMake(view.center.x - 5, view.center.y)
-        var from_value:NSValue = NSValue(CGPoint: from_point)
+        let from_point:CGPoint = CGPointMake(view.center.x - 5, view.center.y)
+        let from_value:NSValue = NSValue(CGPoint: from_point)
         
-        var to_point:CGPoint = CGPointMake(view.center.x + 5, view.center.y)
-        var to_value:NSValue = NSValue(CGPoint: to_point)
+        let to_point:CGPoint = CGPointMake(view.center.x + 5, view.center.y)
+        let to_value:NSValue = NSValue(CGPoint: to_point)
         
         shake.fromValue = from_value
         shake.toValue = to_value

@@ -125,7 +125,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
                 //let mediaURL = "\(studentInfo.link)"  //dictionary["mediaURL"] as! String
                 
                 // Here we create the annotation and set its coordiate, title, and subtitle properties
-                var annotation = MKPointAnnotation()
+                let annotation = MKPointAnnotation()
                 annotation.coordinate = coordinate
                 annotation.title =  name //"\(first) \(last)"
                 if let linkString = studentInfo.link {
@@ -139,7 +139,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             // When the array is complete, we add the annotations to the map.
             self.mapView.addAnnotations(annotations)
         } else {
-            println("studentInfo nil?")
+            print("studentInfo nil?")
         }
     }
     
@@ -148,7 +148,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     // Here we create a view with a "right callout accessory view". You might choose to look into other
     // decoration alternatives. Notice the similarity between this method and the cellForRowAtIndexPath
     // method in TableViewDataSource.
-    func mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) -> MKAnnotationView! {
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView! {
         
         let reuseId = "pin"
         
@@ -158,7 +158,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
             pinView!.canShowCallout = true
             pinView!.pinColor = .Red
-            pinView!.rightCalloutAccessoryView = UIButton.buttonWithType(.DetailDisclosure) as! UIButton
+            pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
         }
         else {
             pinView!.annotation = annotation
@@ -168,7 +168,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     // This delegate method is implemented to respond to taps. It opens the system browser
     // to the URL specified in the annotationViews subtitle property.
-    func mapView(mapView: MKMapView!, annotationView: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+    func mapView(mapView: MKMapView, annotationView: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == annotationView.rightCalloutAccessoryView {
             let app = UIApplication.sharedApplication()
             app.openURL(NSURL(string: annotationView.annotation.subtitle!)!)

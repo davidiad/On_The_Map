@@ -83,7 +83,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         self.configureUIForState(UIState.Geocoding)
         // In case there are any exisiting annotations, remove them
         if self.mapView.annotations.count != 0 {
-            annotation = self.mapView.annotations[0] as! MKAnnotation
+            annotation = self.mapView.annotations[0] 
             self.mapView.removeAnnotation(annotation)
         }
         
@@ -104,7 +104,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
                 self.pointAnnotation!.title = self.locationTextField.text
                 self.pointAnnotation!.coordinate = CLLocationCoordinate2D(latitude: localSearchResponse!.boundingRegion.center.latitude, longitude: localSearchResponse!.boundingRegion.center.longitude)
                 self.mapView.centerCoordinate = self.pointAnnotation!.coordinate
-                self.mapView.setRegion(localSearchResponse.boundingRegion, animated: true)
+                self.mapView.setRegion(localSearchResponse!.boundingRegion, animated: true)
                 self.pinAnnotationView = MKPinAnnotationView(annotation: self.pointAnnotation, reuseIdentifier: nil)
                 self.mapView.addAnnotation(self.pinAnnotationView.annotation!)
                 
@@ -331,7 +331,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     }
     
     // Cancels textfield editing when user touches outside the textfield
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         if locationTextField.isFirstResponder() || linkTextField.isFirstResponder() {
             view.endEditing(true)
         }

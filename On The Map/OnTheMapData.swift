@@ -29,13 +29,13 @@ class OnTheMapData {
             studentInfoArray?.removeAll(keepCapacity: false)
         }
         // Error object
-        var parsingError: NSError? = nil
+        let parsingError: NSError? = nil
         
-        if let results = (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &parsingError) as? NSDictionary) {
+        if let results = (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary) {
 //            if error != nil {
 //                return
 //            }
-            var arrayOfDictionaries = results.valueForKey("results") as! [[String:AnyObject]]
+            let arrayOfDictionaries = results.valueForKey("results") as! [[String:AnyObject]]
             // Put info into student info array
             for dict in arrayOfDictionaries {
                 let info = StudentInfo(data: dict)
@@ -94,7 +94,7 @@ class OnTheMapData {
     
     
     func abc(completion: (s1: StudentInfo?, s2: StudentInfo?) ->  Bool) -> [StudentInfo] {
-        var sortedInfo: [StudentInfo] = studentInfoArray!
+        let sortedInfo: [StudentInfo] = studentInfoArray!
         return sortedInfo
     }
 //
@@ -117,27 +117,27 @@ class OnTheMapData {
         
         // Repeating the JSON parsing code
         //TODO: DRY out JSON parsing code
-        if let userResults = (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &parsingError) as? NSDictionary) {
+        if let userResults = (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary) {
             if let userInfo = userResults.valueForKey("user") as? NSDictionary { //[String:AnyObject]
-                println("userInfo: \(userInfo)")
+                print("userInfo: \(userInfo)")
                 if let firstName = userInfo.valueForKey("first_name") as? String {
                     studentInfoToPost?.firstName = firstName
-                    println("first: \(studentInfoToPost?.firstName)")
+                    print("first: \(studentInfoToPost?.firstName)")
                 } else {
-                    println("where's the first name?")
+                    print("where's the first name?")
                     //TODO: handle error properly
                 }
                 if let lastName = userInfo.valueForKey("last_name") as? String {
                     studentInfoToPost?.lastName = lastName
-                    println("last: \(studentInfoToPost?.lastName)")
-                    println(lastName)
+                    print("last: \(studentInfoToPost?.lastName)")
+                    print(lastName)
                 }
                 // already have key, in order to get the rest of the info for the student logged in
                 if let uniqueKey = userInfo.valueForKey("key") as? String {
                     studentInfoToPost?.uniqueKey = uniqueKey
                 }
             } else {
-                println("Could not parse userInfo")
+                print("Could not parse userInfo")
             }
         }
 }

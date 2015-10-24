@@ -71,7 +71,7 @@ class UdacityClient : NSObject {
                     //let session = NSURLSession.sharedSession()
                     let task = self.session.dataTaskWithRequest(request) { data, response, error in
                         if error != nil { // Handle error...
-                            println("Error???: \(error)")
+                            print("Error???: \(error)")
                             completionHandlerLogin(success: false, errorString: "\(error)")
                             return
                         }
@@ -81,9 +81,9 @@ class UdacityClient : NSObject {
                         //println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                         self.model.readUserInfo(newData)
                         if let myName = self.model.studentInfoToPost?.firstName {
-                            println("firstName: \(myName)")
+                            print("firstName: \(myName)")
                         } else {
-                            println("Problem reading User Info")
+                            print("Problem reading User Info")
                         }
                         completionHandlerLogin(success: true, errorString: "Login was successful!")
                         
@@ -91,9 +91,9 @@ class UdacityClient : NSObject {
                     task.resume()
                     //END//----------request step 2----- Udacity--public user info
                 } else {
-                    println("Problem with key?: ukey retrieved: \(self.model.studentInfoToPost?.uniqueKey)")
-                    println("URLstring: \(URLString)")
-                    println("Error: \(error)")
+                    print("Problem with key?: ukey retrieved: \(self.model.studentInfoToPost?.uniqueKey)")
+                    print("URLstring: \(URLString)")
+                    print("Error: \(error)")
                 }
             } else {
                 completionHandlerLogin(success: false, errorString: "Account not found or invalid credentials.")
@@ -146,10 +146,10 @@ class UdacityClient : NSObject {
                 return
             }
             let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-            println(NSString(data: newData, encoding: NSUTF8StringEncoding))
-            println("**********************")
+            print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+            print("**********************")
             var parsingError: NSError? = nil
-            if let results = (NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments, error: &parsingError) as? NSDictionary) {
+            if let results = (NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments) as? NSDictionary) {
                 if let accountDictionary = results.valueForKey("account") as? NSDictionary {
                     if let key = accountDictionary.valueForKey("key") as? String {
                         self.model.studentInfoToPost?.uniqueKey = key
@@ -164,7 +164,7 @@ class UdacityClient : NSObject {
                             //let session = NSURLSession.sharedSession()
                             let task2 = self.session.dataTaskWithRequest(request2) { data2, response, error in
                                 if error != nil { // Handle error...
-                                    println("Error???: \(error)")
+                                    print("Error???: \(error)")
                                     //completionHandlerLogin(success: false, errorString: "\(error)")
                                     return
                                 }
@@ -174,9 +174,9 @@ class UdacityClient : NSObject {
                                 //println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                                 self.model.readUserInfo(newData2)
                                 if let myName = self.model.studentInfoToPost?.firstName {
-                                    println("firstName: \(myName)")
+                                    print("firstName: \(myName)")
                                 } else {
-                                    println("Problem reading User Info")
+                                    print("Problem reading User Info")
                                 }
                                 //completionHandlerLogin(success: true, errorString: "Login was successful!")
                                 
@@ -231,19 +231,19 @@ class UdacityClient : NSObject {
     func extractKey(data: NSData) {
         //var key: String?
         var parsingError: NSError? = nil
-        if let results = (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &parsingError) as? NSDictionary) {
+        if let results = (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary) {
             if let accountDictionary = results.valueForKey("account") as? NSDictionary {
-                println("acct dict: \(accountDictionary)")
+                print("acct dict: \(accountDictionary)")
                 if let key = accountDictionary.valueForKey("key") as? String {
-                    println("key Extract: \(key)")
+                    print("key Extract: \(key)")
                     //key = keyString
                     self.model.studentInfoToPost?.uniqueKey = key
-                    println("Key has been extracted and stored: \(self.model.studentInfoToPost?.uniqueKey)")
+                    print("Key has been extracted and stored: \(self.model.studentInfoToPost?.uniqueKey)")
                 } else {
-                    println("parsing error with key")
+                    print("parsing error with key")
                 }
             } else {
-                println("parsing error with account")
+                print("parsing error with account")
             }
             //let keyString = ...
             // put the key into the userInfo in the Model
@@ -311,17 +311,17 @@ class UdacityClient : NSObject {
             if cookie.name == "XSRF-TOKEN" { xsrfCookie = cookie }
         }
         if let xsrfCookie = xsrfCookie {
-            request.setValue(xsrfCookie.value!, forHTTPHeaderField: "X-XSRF-TOKEN")
+            request.setValue(xsrfCookie.value, forHTTPHeaderField: "X-XSRF-TOKEN")
         }
         let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithRequest(request) { data, response, error in
             if error != nil { // Handle error…
-                println("An error has occurred when trying to log out")
+                print("An error has occurred when trying to log out")
                 //TODO: Notify the user whether logout was successful
                 return
             }
             let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-            println(NSString(data: newData, encoding: NSUTF8StringEncoding))
+            print(NSString(data: newData, encoding: NSUTF8StringEncoding))
             //TODO:-verify that logout was successful
         }
         task.resume()
@@ -539,7 +539,7 @@ class UdacityClient : NSObject {
                     completionHandler(success: false, errorString: "parsing error", error: error)
                 } else {
                     var messageString = ""
-                    println(results)
+                    print(results)
                     if let createdAtString = results.valueForKey("createdAt") as? String {
                         messageString = "Successful POST at " + createdAtString
                         completionHandler(success: true, errorString: messageString, error: error)
@@ -573,7 +573,12 @@ class UdacityClient : NSObject {
         request.HTTPMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(jsonBody, options: nil, error: &jsonifyError)
+        do {
+            request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(jsonBody, options: [])
+        } catch let error as NSError {
+            jsonifyError = error
+            request.HTTPBody = nil
+        }
         
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
@@ -607,7 +612,7 @@ class UdacityClient : NSObject {
     /* Helper: Given a response with error, see if a status_message is returned, otherwise return the previous error */
     class func errorForData(data: NSData?, response: NSURLResponse?, error: NSError) -> NSError {
         
-        if let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String : AnyObject] {
+        if let parsedResult = (try? NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)) as? [String : AnyObject] {
             
             if let errorMessage = parsedResult[UdacityClient.JSONResponseKeys.StatusMessage] as? String {
                 
@@ -625,7 +630,13 @@ class UdacityClient : NSObject {
         
         var parsingError: NSError? = nil
         
-        let parsedResult: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: &parsingError)
+        let parsedResult: AnyObject?
+        do {
+            parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+        } catch let error as NSError {
+            parsingError = error
+            parsedResult = nil
+        }
         
         if let error = parsingError {
             completionHandler(result: nil, error: error)
@@ -652,7 +663,7 @@ class UdacityClient : NSObject {
             
         }
         
-        return (!urlVars.isEmpty ? "?" : "") + join("&", urlVars)
+        return (!urlVars.isEmpty ? "?" : "") + urlVars.joinWithSeparator("&")
     }
     
     // MARK: - Shared Instance

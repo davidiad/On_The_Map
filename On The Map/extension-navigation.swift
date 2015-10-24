@@ -15,11 +15,11 @@ extension UIViewController {
     
     func setupNav() {
         
-        var leftLogoutBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Logout", style: UIBarButtonItemStyle.Plain, target: self, action: "logoutTapped")
+        let leftLogoutBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Logout", style: UIBarButtonItemStyle.Plain, target: self, action: "logoutTapped")
         
-        var rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Pin", style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped")
+        let rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Pin", style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped")
         
-        var rightRefreshButtonItem:UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Refresh, target: self, action: "refreshTapped")
+        let rightRefreshButtonItem:UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Refresh, target: self, action: "refreshTapped")
         self.navigationItem.setRightBarButtonItems([rightRefreshButtonItem,rightAddBarButtonItem], animated: true)
         navigationItem.setLeftBarButtonItem(leftLogoutBarButtonItem, animated: true)
     }
@@ -34,7 +34,7 @@ extension UIViewController {
     }
     
     func refreshTapped() {
-        println("refresh tapped")
+        print("refresh tapped")
         let client = UdacityClient.sharedInstance()
         client.taskGETParseStudentInfo() {parseSuccess, parseError in
             if parseSuccess {
@@ -50,8 +50,8 @@ extension UIViewController {
     }
     
     func openPinEditor() {
-        var storyboard = UIStoryboard (name: "Main", bundle: nil)
-        var pinEditor = storyboard.instantiateViewControllerWithIdentifier("PinEditor") as! PinEditor
+        let storyboard = UIStoryboard (name: "Main", bundle: nil)
+        let pinEditor = storyboard.instantiateViewControllerWithIdentifier("PinEditor") as! PinEditor
         presentViewController(pinEditor, animated: true, completion: nil)
     }
     
