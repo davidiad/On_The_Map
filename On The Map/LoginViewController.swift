@@ -20,6 +20,14 @@ class LoginViewController: UIViewController {
         loginInfoLabel.text = ""
         if let userName = usernameTextField.text {
             if let pw = passwordTextField.text {
+                client.loginConvenience(userName, pw: pw) { success, errorString in
+                    if success {
+                        print("called login convenicence with success")
+                    } else {
+                        print("ERROR IN LC")
+                    }
+                }
+
                 client.taskPOSTUdacityLogin(userName, pw: pw) {success, key, errorString in
                     if success {
                         // to avoid crash because not on main queue

@@ -37,6 +37,17 @@ class UdacityClient : NSObject {
     
     // MARK: - GET
     
+    func loginConvenience(userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+        self.getUserKey(userName, pw: pw) { (success, userKey, errorString) in
+            if success {
+                print("In loginConvernience: \(userKey)")
+                completionHandler(success: true, errorString: nil)
+                
+                // use userKey in the next step, getting first and last name from Udacity
+            }
+        }
+    }
+    
     func login(userName: String, pw: String, completionHandlerLogin: (success: Bool, errorString: String?) -> Void) {
         /*
         // Udacity login

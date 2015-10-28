@@ -21,6 +21,35 @@ import Foundation
 
 extension UdacityClient {
     
+    func getUserKey (userName: String, pw: String, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
+        let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
+        request.HTTPMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        let HTTPBodyString = "{\"udacity\": {\"username\": \"" + userName + "\", \"password\": \"" + pw + "\"}}"
+        
+        request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
+        
+        let session = NSURLSession.sharedSession()
+        let task = session.dataTaskWithRequest(request) { data, response, error in
+            let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+            //print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+            //print("**********************")
+            if let results = try! (NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments) as? NSDictionary) {
+                if let accountDictionary = results.valueForKey("account") as? NSDictionary {
+                    if let key = accountDictionary.valueForKey("key") as? String {
+                        self.model.studentInfoToPost?.uniqueKey = key
+                        completionHandler(success: true, userKey: key, errorString: "Found the account")
+                    }
+                }
+            }
+        }
+        task.resume()
+    }
+
+
+
+    
     // MARK: - Authentication (GET) Methods
     /*
     Steps for Authentication...
@@ -31,6 +60,7 @@ extension UdacityClient {
     Step 3: Create a session ID
     Bonus Step: Go ahead and get the user id 😎!
     */
+    
     /*
     func authenticateWithViewController(hostViewController: UIViewController, completionHandler: (success: Bool, errorString: String?) -> Void) {
         
