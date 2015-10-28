@@ -45,6 +45,9 @@ class OnTheMapData {
         catch {
             print("pppppp")
         }
+        
+       // studentInfoArray.sort({$0.createdAt &gt; $1.createdAt })
+        //studentInfoArray!.sortInPlace({$0.; $1.createdAt })
 //        var sortedInfo: [StudentInfo] = studentInfoArray?.sort({ (s1: StudentInfo, s2: StudentInfo) -> Bool in
 //            return s1.firstName as NSString > s2.firstName as NSString
 //        })
@@ -76,23 +79,24 @@ class OnTheMapData {
         //Then you can simply do:
         
         //studentInfoArray?.sort({ $0.lastName < $1.lastName })
-        //studentInfoArray?.sort({ $0.timestamp!.compare($1.timestamp!) == .OrderedAscending })
-//        studentInfoArray?.sort({
+        
+        
+        //studentInfoArray?.sortInPlace({ $0.timestamp!.compare($1.timestamp!) == .OrderedAscending })
+        
+        
+//        studentInfoArray?.sortInPlace({
 //            if let ts1: NSDate = $0.timestamp {
 //                if let ts2: NSDate = $1.timestamp {
-//                    return ts1.compare(ts2) == .OrderedAscending
+//                    return ts1.compare(ts2) == .OrderedDescending
 //                } else {
 //                    return false
 //                }
 //            } else {
 //                return false
 //            }
-//            return false
 //            //$0.timestamp!.compare($1.timestamp!) == .OrderedAscending
 //        })
     }
-    
-    
     
     func abc(completion: (s1: StudentInfo?, s2: StudentInfo?) ->  Bool) -> [StudentInfo] {
         let sortedInfo: [StudentInfo] = studentInfoArray!

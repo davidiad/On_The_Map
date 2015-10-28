@@ -80,6 +80,7 @@ class ListViewController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) 
 
         // Configure the cell...
+        //TODO: crash when refreshing, index out of range
         if let _studentInfo = OnTheMapData.sharedInstance.studentInfoArray?[indexPath.row] {
             var name = " "
             if let lastName = _studentInfo.lastName {

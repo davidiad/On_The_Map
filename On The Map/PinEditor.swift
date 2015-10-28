@@ -11,7 +11,7 @@ import MapKit
 
 class PinEditor: UIViewController, UITextFieldDelegate {
 
-//MARK: - Constants, Enums, Vars, Outlets, & Actions
+//MARK: - Enums, Constants, Vars, Outlets, & Actions
     
     let client = UdacityClient.sharedInstance()
     
@@ -19,10 +19,9 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         case Unspecified
         case Find
         case Geocoding
+        case GeocodingError
         case Submit
     }
-    
-    //var keyboardHeight: CGFloat?
     
     var annotation:MKAnnotation!
     var localSearchRequest:MKLocalSearchRequest!
@@ -31,11 +30,6 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     var error:NSError!
     var pointAnnotation:MKPointAnnotation?
     var pinAnnotationView:MKPinAnnotationView!
-    
-    // activity indicator stuff
-//    var messageFrame = UIView()
-//    var activityIndicator = UIActivityIndicatorView()
-//    var strLabel = UILabel()
     
     @IBOutlet weak var viewTop: UIView!
     @IBOutlet weak var viewMid: UIView!
@@ -78,70 +72,97 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         }
     }*/
     
+    @IBAction func browseToLink(sender: AnyObject) {
+        openLinkBrowser()
+    }
+    
+    func openLinkBrowser() {
+        let storyboard = UIStoryboard (name: "Main", bundle: nil)
+        let linkBrowser = storyboard.instantiateViewControllerWithIdentifier("LinkBrowser")
+        presentViewController(linkBrowser, animated: true, completion: nil)
+    }
+    
+//    func alert(alertString: String) {
+//        let alertController = UIAlertController(title: nil, message: alertString, preferredStyle: UIAlertControllerStyle.Alert)
+//        alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil))
+//        self.presentViewController(alertController, animated: true, completion: nil)
+//        //return
+//    }
+    
     @IBAction func findOnMap(sender: AnyObject) {
         //TODO: alert view if geocode fails, and goes to a state for that
         self.configureUIForState(UIState.Geocoding)
+        
         // In case there are any exisiting annotations, remove them
         if self.mapView.annotations.count != 0 {
             annotation = self.mapView.annotations[0] 
             self.mapView.removeAnnotation(annotation)
         }
         
-        localSearchRequest = MKLocalSearchRequest()
-        localSearchRequest.naturalLanguageQuery = locationTextField.text
-        localSearch = MKLocalSearch(request: localSearchRequest)
-        localSearch.startWithCompletionHandler { (localSearchResponse, error) -> Void in
-            
-            if localSearchResponse == nil {
-                let alertController = UIAlertController(title: nil, message: "Place Not Found", preferredStyle: UIAlertControllerStyle.Alert)
-                alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil))
-                self.presentViewController(alertController, animated: true, completion: nil)
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(locationTextField.text!) { (placemarks, error) -> Void in
+            if (error != nil) {
+                //TODO: make sure the state is configured correctly for Geocode error
+                self.configureUIForState(UIState.GeocodingError)
+                self.alert("Could not find that place")
                 return
-            } else {
-                //info?.location = self.locationTextView.text
-                //info.lat = localSearchResponse.boundingRegion.center.latitude
-                self.pointAnnotation = MKPointAnnotation()
-                self.pointAnnotation!.title = self.locationTextField.text
-                self.pointAnnotation!.coordinate = CLLocationCoordinate2D(latitude: localSearchResponse!.boundingRegion.center.latitude, longitude: localSearchResponse!.boundingRegion.center.longitude)
-                self.mapView.centerCoordinate = self.pointAnnotation!.coordinate
-                self.mapView.setRegion(localSearchResponse!.boundingRegion, animated: true)
-                self.pinAnnotationView = MKPinAnnotationView(annotation: self.pointAnnotation, reuseIdentifier: nil)
-                self.mapView.addAnnotation(self.pinAnnotationView.annotation!)
-                
-                /*
-                let ts = "today"
-                let name = "D Fault"
-                let loc = "College 42"
-                let default_url = NSURL(string: "http://www.kimba.com")
-                self.info = StudentInfo(timestamp: ts, name: name, location: loc, link: default_url!)
-                //TODO:-?- create a dictionary of the info, and use that dictionary to init the StudentInfo to post object
-                self.info?.lat = localSearchResponse.boundingRegion.center.latitude
-                self.info?.lon = localSearchResponse.boundingRegion.center.longitude
-                self.info?.location = self.locationTextView.text
-                OnTheMapData.sharedInstance.studentInfoToPost = self.info
-                */
-                
-                // Why even go thru a locally created StudentInfo? Why not save directly to model? eg:
-                OnTheMapData.sharedInstance.studentInfoToPost?.lat = localSearchResponse!.boundingRegion.center.latitude
-                OnTheMapData.sharedInstance.studentInfoToPost?.lon = localSearchResponse!.boundingRegion.center.longitude
+            }
+            if let placemark = placemarks?[0] {
+                let lat = placemark.location?.coordinate.latitude
+                let lon = placemark.location?.coordinate.longitude
+                let region = placemark.region as! CLCircularRegion
+                let mkregion = MKCoordinateRegionMakeWithDistance(
+                    region.center,
+                    region.radius,
+                    region.radius);
+
+                OnTheMapData.sharedInstance.studentInfoToPost?.lat = lat
+                OnTheMapData.sharedInstance.studentInfoToPost?.lon = lon
                 OnTheMapData.sharedInstance.studentInfoToPost?.location = self.locationTextField.text
                 
+                self.pointAnnotation = MKPointAnnotation()
+                self.pointAnnotation!.title = self.locationTextField.text
+                self.pointAnnotation!.coordinate = CLLocationCoordinate2D(latitude: lat!, longitude: lon!)
+                self.mapView.centerCoordinate = self.pointAnnotation!.coordinate
+                self.mapView.setRegion(mkregion, animated: true)
+                self.pinAnnotationView = MKPinAnnotationView(annotation: self.pointAnnotation, reuseIdentifier: nil)
+                self.mapView.addAnnotation(self.pinAnnotationView.annotation!)
                 self.configureUIForState(UIState.Submit)
-                //TODO:- add first and last names to post
-                //TODO:-Add url to info for posting
-                //TODO:-add timestamp to post, used for sorting - But isn't this created on the server?
-               
-                              //OnTheMapData.sharedInstance.studentInfoToPost?.lat = localSearchResponse!.boundingRegion.center.latitude
-                
-                // Example of a search response:
-//                <MKLocalSearchResponse: 0x7f9a491d69d0> {
-//                    boundingRegion = "<center:+42.31441587, -70.97015347 span:+0.17292700, +0.44270304>";
-//                    mapItems =     (
-//                        "<MKMapItem: 0x7f9a44748220> {\n    isCurrentLocation = 0;\n    name = \"Boston, MA\";\n    placemark = \"Boston, MA, Boston, MA, United States @ <+42.35889400,-71.05674200> +/- 0.00m, region CLCircularRegion (identifier:'<+42.31441589,-70.97015350> radius 20581.91', center:<+42.31441589,-70.97015350>, radius:20581.91m)\";\n    url = \"http://en.wikipedia.org/wiki/Boston\";\n}"
-//                    );
-//                }
             }
         }
+//        localSearchRequest = MKLocalSearchRequest()
+//        localSearchRequest.naturalLanguageQuery = locationTextField.text
+//        localSearch = MKLocalSearch(request: localSearchRequest)
+//        localSearch.startWithCompletionHandler { (localSearchResponse, error) -> Void in
+//        
+//            if localSearchResponse == nil {
+//                let alertController = UIAlertController(title: nil, message: "Place Not Found", preferredStyle: UIAlertControllerStyle.Alert)
+//                alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil))
+//                self.presentViewController(alertController, animated: true, completion: nil)
+//                return
+//            } else {
+//                self.pointAnnotation = MKPointAnnotation()
+//                self.pointAnnotation!.title = self.locationTextField.text
+//                self.pointAnnotation!.coordinate = CLLocationCoordinate2D(latitude: localSearchResponse!.boundingRegion.center.latitude, longitude: localSearchResponse!.boundingRegion.center.longitude)
+//                self.mapView.centerCoordinate = self.pointAnnotation!.coordinate
+//                self.mapView.setRegion(localSearchResponse!.boundingRegion, animated: true)
+//                self.pinAnnotationView = MKPinAnnotationView(annotation: self.pointAnnotation, reuseIdentifier: nil)
+//                self.mapView.addAnnotation(self.pinAnnotationView.annotation!)
+//                
+//                OnTheMapData.sharedInstance.studentInfoToPost?.lat = localSearchResponse!.boundingRegion.center.latitude
+//                OnTheMapData.sharedInstance.studentInfoToPost?.lon = localSearchResponse!.boundingRegion.center.longitude
+//                OnTheMapData.sharedInstance.studentInfoToPost?.location = self.locationTextField.text
+//                
+//                self.configureUIForState(UIState.Submit)
+//
+//                // Example of a search response:
+////                <MKLocalSearchResponse: 0x7f9a491d69d0> {
+////                    boundingRegion = "<center:+42.31441587, -70.97015347 span:+0.17292700, +0.44270304>";
+////                    mapItems =     (
+////                        "<MKMapItem: 0x7f9a44748220> {\n    isCurrentLocation = 0;\n    name = \"Boston, MA\";\n    placemark = \"Boston, MA, Boston, MA, United States @ <+42.35889400,-71.05674200> +/- 0.00m, region CLCircularRegion (identifier:'<+42.31441589,-70.97015350> radius 20581.91', center:<+42.31441589,-70.97015350>, radius:20581.91m)\";\n    url = \"http://en.wikipedia.org/wiki/Boston\";\n}"
+////                    );
+//            }
+//        }
     }
     
     @IBAction func cancel(sender: AnyObject) {
@@ -233,15 +254,25 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             locationTextField.hidden = false
             linkTextField.hidden = true
         } else if state == UIState.Geocoding {
-            geocodingView.hidden = false
-            activityView.startAnimating()
+            geocodingView.hidden = true
+            activityView.stopAnimating()
             //showActivityIndicator("Geocoding", true)
             queryLabel.text = "Searching for you"
             findButton.hidden = false
             submitButton.hidden = true
             mapView.hidden = false
             locationTextField.hidden = false
-            linkTextField.hidden = false
+            linkTextField.hidden = true
+        } else if state == UIState.GeocodingError {
+            geocodingView.hidden = true
+            activityView.stopAnimating()
+            //showActivityIndicator("Geocoding", true)
+            queryLabel.text = "Where are you studying today?"
+            findButton.hidden = false
+            submitButton.hidden = true
+            mapView.hidden = false
+            locationTextField.hidden = false
+            linkTextField.hidden = true
         } else if state == UIState.Submit {
             activityView.stopAnimating()
             geocodingView.hidden = true
