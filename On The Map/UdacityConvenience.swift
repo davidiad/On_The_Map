@@ -22,6 +22,7 @@ import Foundation
 extension UdacityClient {
     
     func getUserKey (userName: String, pw: String, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
+        //TODO: get url string from constants
         let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
         request.HTTPMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -39,17 +40,36 @@ extension UdacityClient {
                 if let accountDictionary = results.valueForKey("account") as? NSDictionary {
                     if let key = accountDictionary.valueForKey("key") as? String {
                         self.model.studentInfoToPost?.uniqueKey = key
-                        completionHandler(success: true, userKey: key, errorString: "Found the account")
+                        completionHandler(success: true, userKey: key, errorString: nil)
                     }
                 }
             }
         }
         task.resume()
     }
-
-
-
     
+    func getUserInfo (key: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+        //TODO: get url string from constants
+        var URLString = "https://www.udacity.com/api/users/"
+        if let key = self.model.studentInfoToPost?.uniqueKey {
+            URLString += key
+            let request = NSMutableURLRequest(URL: NSURL(string: URLString)!)
+            //let session = NSURLSession.sharedSession()
+            let task = self.session.dataTaskWithRequest(request) { data, response, error in
+                if error != nil { // Handle error...
+                    print("Error???: \(error)")
+                    completionHandler(success: false, errorString: "\(error)")
+                    return
+                }
+                let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+                self.model.storeUserInfo(newData)
+                completionHandler(success: true, errorString: nil)
+            }
+            task.resume()
+        }
+    }
+
+
     // MARK: - Authentication (GET) Methods
     /*
     Steps for Authentication...

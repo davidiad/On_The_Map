@@ -39,6 +39,7 @@ struct StudentInfo {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
             let timestamp = dateFormatter.dateFromString(timestampString)
             //print("timestamp: \(timestamp!)")
+            self.timestamp = timestamp
         }
 
         

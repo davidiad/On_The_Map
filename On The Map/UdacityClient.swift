@@ -39,13 +39,26 @@ class UdacityClient : NSObject {
     
     func loginConvenience(userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
         self.getUserKey(userName, pw: pw) { (success, userKey, errorString) in
+            
             if success {
-                print("In loginConvernience: \(userKey)")
-                completionHandler(success: true, errorString: nil)
                 
-                // use userKey in the next step, getting first and last name from Udacity
+                self.getUserInfo(userKey!) { (success, errorString) in
+                    
+                    if success {
+                        self.taskGETParseStudentInfo() {parseSuccess, parseError in
+                            if parseSuccess {
+                                NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+                            } else {
+                                completionHandler(success: false, errorString: "Download Failed")
+                            }
+                        }
+
+                    }
+                    
+                }
             }
         }
+        completionHandler(success: true, errorString: nil)
     }
     
     func login(userName: String, pw: String, completionHandlerLogin: (success: Bool, errorString: String?) -> Void) {
@@ -90,7 +103,7 @@ class UdacityClient : NSObject {
                         //println("2nd Request from Udacity")
                         //println(NSString(data: newData, encoding: NSUTF8StringEncoding))
                         //println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                        self.model.readUserInfo(newData)
+                        self.model.storeUserInfo(newData)
                         if let myName = self.model.studentInfoToPost?.firstName {
                             print("firstName: \(myName)")
                         } else {
@@ -186,7 +199,7 @@ class UdacityClient : NSObject {
                                 //println("2nd Request from Udacity")
                                 //println(NSString(data: newData, encoding: NSUTF8StringEncoding))
                                 //println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                                self.model.readUserInfo(newData2)
+                                self.model.storeUserInfo(newData2)
                                 if let myName = self.model.studentInfoToPost?.firstName {
                                     print("firstName: \(myName)")
                                 } else {

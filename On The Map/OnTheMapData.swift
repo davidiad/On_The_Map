@@ -116,7 +116,7 @@ class OnTheMapData {
             func taskPOSTUdacityLogin (userName: String, pw: String, completionHandler: (success: Bool, key: String?, errorString: String?) -> Void) {
 */
         
-    func readUserInfo(data: NSData) {
+    func storeUserInfo(data: NSData) {
         do {
             let userResults = try (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary)
             if let userInfo = userResults!.valueForKey("user") as? NSDictionary {
@@ -133,15 +133,30 @@ class OnTheMapData {
                 }
             }
         } catch {
-            //print("I tot i taw an ewwow")
+//            // Parse the JSON further to determine cause of login error
+//            if let status: AnyObject = userResults.valueForKey("status") {
+//                if status as! NSObject == 403 {
+//                    if let error403: AnyObject = results.valueForKey("error") {
+//                        completionHandler(success: false, key: nil, errorString: error403 as? String)
+//                    }
+//                } else if status as! NSObject == 400 {
+//                    if let error400: NSString = results.valueForKey("error") as? NSString {
+//                        let trimmedString: String = error400.substringFromIndex(max(error400.length - 28, 0))
+//                        completionHandler(success: false, key: nil, errorString: trimmedString)
+//                    }
+//                }
+//            } else {
+//                completionHandler(success: false, key: nil, errorString: "Unknown problem with account")
+//            }
+
         }
     }
 
 //    func createInfoArray (dict: [String:String]) {
-//        
+//
 //    }
     
-//    
+//
 //    init(data: String)
     
     // Example init
