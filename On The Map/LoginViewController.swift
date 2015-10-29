@@ -15,53 +15,51 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var loginInfoLabel: UILabel!
-    
+        
     @IBAction func login(sender: AnyObject) {
         loginInfoLabel.text = ""
-        if let userName = usernameTextField.text {
-            if let pw = passwordTextField.text {
-                client.loginConvenience(userName, pw: pw) { success, errorString in
-                    if success {
-                        print("called login convenicence with success")
-                    } else {
-                        print("ERROR IN LC")
-                    }
+        let userName = usernameTextField.text
+        let pw = passwordTextField.text
+        if userName == "" {
+            shakeView(usernameTextField)
+            loginInfoLabel.text = "Please enter a user name"
+        }
+        if pw == "" {
+            shakeView(passwordTextField)
+            loginInfoLabel.text = "Please enter a password"
+        }
+        if userName == "" {
+            shakeView(usernameTextField)
+        }
+        if userName == "" || pw == "" {
+            //Only proceed with login if parameters are not empty
+            return
+        } else {
+            loginInfoLabel.text = ""
+        }
+        client.loginConvenience(userName!, pw: pw!) { success, errorString in
+            if success {
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.performSegueWithIdentifier("loginSegue", sender: sender)
                 }
-
-                client.taskPOSTUdacityLogin(userName, pw: pw) {success, key, errorString in
-                    if success {
-                        // to avoid crash because not on main queue
-                        //                        NSOperationQueue.mainQueue().addOperationWithBlock {
-                        //                            if let alertString = errorString {
-                        //                                self.alert(errorString!)
-                        //                            }
-                        dispatch_async(dispatch_get_main_queue()) {
-                            self.performSegueWithIdentifier("loginSegue", sender: sender)
-                        }
-                    } else {
-                        dispatch_async(dispatch_get_main_queue()) {
-                            if let alertString = errorString {
-                                if alertString == "The Internet connection appears to be offline." {
-                                    self.alert(errorString!)
-                                } else {
-                                    self.loginInfoLabel.text = alertString
-                                    if alertString.lowercaseString.rangeOfString("username") != nil {
-                                        self.shakeView(self.usernameTextField)
-                                    } else if alertString.lowercaseString.rangeOfString("password") != nil {
-                                        self.shakeView(self.passwordTextField)
-                                    } else {
-                                        self.shakeView(self.usernameTextField)
-                                        self.shakeView(self.passwordTextField)
-                                    }
-                                }
+            } else {
+                dispatch_async(dispatch_get_main_queue()) {
+                    if let alertString = errorString {
+                        if alertString == "The Internet connection appears to be offline." {
+                            self.alert(errorString!)
+                        } else {
+                            self.loginInfoLabel.text = alertString
+                            if alertString.lowercaseString.rangeOfString("username") != nil {
+                                self.shakeView(self.usernameTextField)
+                            } else if alertString.lowercaseString.rangeOfString("password") != nil {
+                                self.shakeView(self.passwordTextField)
+                            } else {
+                                self.shakeView(self.usernameTextField)
+                                self.shakeView(self.passwordTextField)
                             }
                         }
                     }
                 }
-                //performSegueWithIdentifier("loginSegue", sender: sender)
-            } else {
-                // handle error
-                print("error with login")
             }
         }
     }

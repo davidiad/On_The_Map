@@ -36,7 +36,7 @@ extension UIViewController {
     func refreshTapped() {
         print("refresh tapped")
         let client = UdacityClient.sharedInstance()
-        client.taskGETParseStudentInfo() {parseSuccess, parseError in
+        client.getParseStudentInfo() {parseSuccess, parseError in
             if parseSuccess {
                 NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
             } else {

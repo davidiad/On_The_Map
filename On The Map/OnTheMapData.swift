@@ -23,27 +23,27 @@ class OnTheMapData {
       //  studentInfoArray : StudentInfo = []
     }
     
-    func convertJSON(data: NSData, completionHandler: (success: Bool, error: NSError?) -> Void) {
-        //studentInfoArray = [StudentInfo]()
-        if studentInfoArray?.count > 0 {
-            studentInfoArray?.removeAll(keepCapacity: false)
-        }
-        // Error object
-        let parsingError: NSError? = nil
-        
+    func convertJSON(data: NSData, completionHandler: (success: Bool, errorString: String?) -> Void) {
+
         do {
             let results = try (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary)
-            let arrayOfDictionaries = results!.valueForKey("results") as! [[String:AnyObject]]
-            // Put info into student info array
-            for dict in arrayOfDictionaries {
-                let info = StudentInfo(data: dict)
-                studentInfoArray?.append(info)
+            if let arrayOfDictionaries = results!.valueForKey("results") as? [[String:AnyObject]] {
+                // Put info into student info array
+                if studentInfoArray?.count > 0 {
+                    studentInfoArray?.removeAll(keepCapacity: false)
+                }
+                for dict in arrayOfDictionaries {
+                    let info = StudentInfo(data: dict)
+                    studentInfoArray?.append(info)
+                }
+                completionHandler(success: true, errorString: nil)
+            } else {
+                // There must have been a problem reading results from the JSON
+                completionHandler(success: false, errorString: "Could not read JSON results")
             }
-            completionHandler(success: true, error: parsingError)
-            // now, pass on success to completion handler?
         }
         catch {
-            print("pppppp")
+            completionHandler(success: false, errorString: "JSON could not be fetched")
         }
         
        // studentInfoArray.sort({$0.createdAt &gt; $1.createdAt })

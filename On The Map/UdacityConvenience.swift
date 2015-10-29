@@ -21,7 +21,7 @@ import Foundation
 
 extension UdacityClient {
     
-    func getUserKey (userName: String, pw: String, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
+    func getUdacityUserKey (userName: String, pw: String, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
         //TODO: get url string from constants
         let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
         request.HTTPMethod = "POST"
@@ -33,6 +33,7 @@ extension UdacityClient {
         
         let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithRequest(request) { data, response, error in
+            //TODO: subject to crash if unwrapping an optional (data I guess)
             let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
             //print(NSString(data: newData, encoding: NSUTF8StringEncoding))
             //print("**********************")
@@ -42,13 +43,15 @@ extension UdacityClient {
                         self.model.studentInfoToPost?.uniqueKey = key
                         completionHandler(success: true, userKey: key, errorString: nil)
                     }
+                } else {
+                    completionHandler(success: false, userKey: nil, errorString: "error")
                 }
             }
         }
         task.resume()
     }
     
-    func getUserInfo (key: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+    func getUdacityUserInfo (key: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
         //TODO: get url string from constants
         var URLString = "https://www.udacity.com/api/users/"
         if let key = self.model.studentInfoToPost?.uniqueKey {

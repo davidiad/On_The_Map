@@ -38,27 +38,31 @@ class UdacityClient : NSObject {
     // MARK: - GET
     
     func loginConvenience(userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
-        self.getUserKey(userName, pw: pw) { (success, userKey, errorString) in
+        self.getUdacityUserKey(userName, pw: pw) { (success, userKey, errorString) in
             
             if success {
                 
-                self.getUserInfo(userKey!) { (success, errorString) in
+                self.getUdacityUserInfo(userKey!) { (success, errorString) in
                     
                     if success {
-                        self.taskGETParseStudentInfo() {parseSuccess, parseError in
-                            if parseSuccess {
+                        //completionHandler(success: success, errorString: nil)
+                        self.getParseStudentInfo() {success, errorString in
+                            if success {
+                                // notify map and table to refresh
                                 NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+                                completionHandler(success: success, errorString: errorString)
                             } else {
-                                completionHandler(success: false, errorString: "Download Failed")
+                                completionHandler(success: false, errorString: errorString)
                             }
                         }
-
+                    } else {
+                        completionHandler(success: success, errorString: errorString)
                     }
-                    
                 }
+            } else {
+                completionHandler(success: success, errorString: errorString)
             }
         }
-        completionHandler(success: true, errorString: nil)
     }
     
     func login(userName: String, pw: String, completionHandlerLogin: (success: Bool, errorString: String?) -> Void) {
@@ -236,7 +240,7 @@ class UdacityClient : NSObject {
             }
         }
         task.resume()
-        self.taskGETParseStudentInfo() {parseSuccess, parseError in
+        self.getParseStudentInfo() {parseSuccess, parseError in
             if parseSuccess {
                 NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
             } else {
@@ -309,10 +313,57 @@ class UdacityClient : NSObject {
     */
     
     // Use Parse API to get student data, with completion handler
+    func getParseStudentInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
+        let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation?order=-updatedAt")!)
+        request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
+        // added XXX to end to force an error for testing
+        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
+        let task = session.dataTaskWithRequest(request) { data, response, error in
+            
+            /* GUARD: Was there an error? */
+            guard (error == nil) else {
+                let errorString = ("There was an error with the Parse request: \(error)")
+                completionHandler(success: false, errorString: errorString)
+                return
+            }
+            
+            /* GUARD: Did we get a successful 2XX response? */
+            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
+                let invalid = "Your download request for student locations from Parse returned an invalid response!"
+                var errorString = invalid
+                if let response = response as? NSHTTPURLResponse {
+                    errorString = "\(invalid) Status code: \(response.statusCode)"
+                } else if let response = response {
+                   errorString = "\(invalid)! Response: \(response)"
+                }
+                completionHandler(success: false, errorString: errorString)
+                return
+            }
+            
+            /* GUARD: Was there any data returned? */
+            guard let data = data else {
+                completionHandler(success: false, errorString: "No student location data was returned by the request to Parse!")
+                return
+            }
+
+            // Store the student data into the model
+            self.model.convertJSON(data) {success, errorString in
+                if success {
+                    completionHandler(success: success, errorString: errorString)
+                }
+            }
+           
+        }
+        task.resume()
+    }
+
+    /*
+    // TO be replace by getParseStudentInfo()
+    // Use Parse API to get student data, with completion handler
     func taskGETParseStudentInfo(completionHandler: (parseSuccess: Bool, parseError: NSError?) -> Void) {
         let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation?order=-updatedAt")!)
         request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
+        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gYZ", forHTTPHeaderField: "X-Parse-REST-API-Key") // extra Z at end to force error
         //let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithRequest(request) { data, response, error in
             if error != nil { // Handle error...
@@ -330,6 +381,7 @@ class UdacityClient : NSObject {
         }
         task.resume()
     }
+    */
     
     func udacityLogout () {
         

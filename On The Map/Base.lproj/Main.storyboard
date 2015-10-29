@@ -354,11 +354,11 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZnU-0A-y8t">
-                                <rect key="frame" x="16" y="444" width="288" height="74"/>
+                                <rect key="frame" x="16" y="318" width="288" height="200"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="74" id="ATN-5H-s7b"/>
+                                    <constraint firstAttribute="height" constant="200" id="ATN-5H-s7b"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <color key="textColor" red="1" green="0.1609982179740389" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
