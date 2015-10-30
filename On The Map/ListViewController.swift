@@ -80,7 +80,6 @@ class ListViewController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) 
 
         // Configure the cell...
-        //TODO: crash when refreshing, index out of range
         if let _studentInfo = OnTheMapData.sharedInstance.studentInfoArray?[indexPath.row] {
             var name = " "
             if let lastName = _studentInfo.lastName {
@@ -89,9 +88,7 @@ class ListViewController: UITableViewController {
             if let firstName = _studentInfo.firstName {
                 name = firstName + name
             }
-            //let name = _studentInfo.firstName! + " " + _studentInfo.lastName!
             let location = _studentInfo.location
-            //println("tableRow: \(name) lives here: \(location)")
             cell.detailTextLabel?.text = location
             cell.textLabel?.text = name
         }
@@ -100,8 +97,6 @@ class ListViewController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //TODO:-consolidate _studentInfo var
-        //TODO:- safely unwrap _studentInfo and .link
         if let _studentInfo = OnTheMapData.sharedInstance.studentInfoArray?[indexPath.row] {
             if let url = _studentInfo.link{
                 UIApplication.sharedApplication().openURL(url)

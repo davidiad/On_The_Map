@@ -22,13 +22,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         view.endEditing(true) // touch the button, the keyboard retracts
         let userName = usernameTextField.text
         let pw = passwordTextField.text
-        if userName == "" {
-            shakeView(usernameTextField)
-            loginInfoLabel.text = "Please enter a user name"
-        }
         if pw == "" {
             shakeView(passwordTextField)
             loginInfoLabel.text = "Please enter a password"
+        }
+        if userName == "" {
+            shakeView(usernameTextField)
+            loginInfoLabel.text = "Please enter a user name"
         }
         if userName == "" {
             shakeView(usernameTextField)
@@ -39,7 +39,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         } else {
             loginInfoLabel.text = ""
         }
-        client.loginConvenience(userName!, pw: pw!) { success, errorString in
+        client.login(userName!, pw: pw!) { success, errorString in
             if success {
                 dispatch_async(dispatch_get_main_queue()) {
                     self.performSegueWithIdentifier("loginSegue", sender: sender)
@@ -65,47 +65,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             }
         }
     }
-    
-    /* old login works
-@IBAction func login(sender: AnyObject) {
-if let userName = usernameTextField.text {
-if let pw = passwordTextField.text {
-client.login(userName, pw: pw) {success, errorString in
-if success {
-// to avoid crash because not on main queue
-//                        NSOperationQueue.mainQueue().addOperationWithBlock {
-//                            if let alertString = errorString {
-//                                self.alert(errorString!)
-//                            }
-dispatch_async(dispatch_get_main_queue()) {
-self.performSegueWithIdentifier("loginSegue", sender: sender)
-}
-} else {
-dispatch_async(dispatch_get_main_queue()) {
-if let alertString = errorString {
-self.alert(errorString!)
-}
-}
-}
-}
-//performSegueWithIdentifier("loginSegue", sender: sender)
-} else {
-// handle error
-println("error with login")
-}
-}
-}
-*/
-
-    /* already defined in extension
-    func alert(alertString: String) {
-        let alertController = UIAlertController(title: nil, message: alertString, preferredStyle: UIAlertControllerStyle.Alert)
-        alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil))
-        self.presentViewController(alertController, animated: true, completion: nil)
-        //return
-    }
-    */
-    
+        
     func shakeView(view: UIView){
         let shake:CABasicAnimation = CABasicAnimation(keyPath: "position")
         shake.duration = 0.1

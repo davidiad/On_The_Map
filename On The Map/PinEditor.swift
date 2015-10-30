@@ -45,32 +45,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var geocodingView: UIView!
     @IBOutlet weak var activityView: UIActivityIndicatorView!
     
-    override func viewDidAppear(animated: Bool) {
-       // showActivityIndicator("Geocoding", true)
-    }
-    
     //TODO:- When Geocoding, animate the find location field transparency up and down, to indicate activity
-    
-    /*func showActivityIndicator(msg:String, _ indicator:Bool ) {
-        strLabel = UILabel(frame: CGRect(x: 50, y: 0, width: 200, height: 50))
-        strLabel.text = msg
-        strLabel.textColor = UIColor.whiteColor()
-        messageFrame = UIView(frame: CGRect(x: view.frame.midX - 90, y: view.frame.midY - 25 , width: 180, height: 50))
-        messageFrame.layer.cornerRadius = 15
-        messageFrame.backgroundColor = UIColor(white: 0, alpha: 0.55)
-        if indicator {
-            activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
-            activityIndicator.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-            activityIndicator.startAnimating()
-            messageFrame.addSubview(activityIndicator)
-        }
-        messageFrame.addSubview(strLabel)
-        view.addSubview(messageFrame)
-        if !indicator {
-            activityIndicator.stopAnimating()
-            messageFrame.removeFromSuperview()
-        }
-    }*/
     
     @IBAction func browseToLink(sender: AnyObject) {
         openLinkBrowser()
@@ -82,25 +57,30 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         presentViewController(linkBrowser, animated: true, completion: nil)
     }
     
-//    func alert(alertString: String) {
-//        let alertController = UIAlertController(title: nil, message: alertString, preferredStyle: UIAlertControllerStyle.Alert)
-//        alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil))
-//        self.presentViewController(alertController, animated: true, completion: nil)
-//        //return
-//    }
-    
     @IBAction func findOnMap(sender: AnyObject) {
-        //TODO: alert view if geocode fails, and goes to a state for that
+
         self.configureUIForState(UIState.Geocoding)
+        
+        /* Code to add a delay, for testing UIState. Also un/comment the end brace of this, below at bottom of func
+        // Wait, for testing
+        let seconds = 4.0
+        let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
+        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+        
+        dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+            
+            // here code perfomed with delay
+         */
+       
         
         // In case there are any exisiting annotations, remove them
         if self.mapView.annotations.count != 0 {
-            annotation = self.mapView.annotations[0] 
-            self.mapView.removeAnnotation(annotation)
+            self.annotation = self.mapView.annotations[0] 
+            self.mapView.removeAnnotation(self.annotation)
         }
         
         let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(locationTextField.text!) { (placemarks, error) -> Void in
+        geocoder.geocodeAddressString(self.locationTextField.text!) { (placemarks, error) -> Void in
             if (error != nil) {
                 //TODO: make sure the state is configured correctly for Geocode error
                 self.configureUIForState(UIState.GeocodingError)
@@ -130,39 +110,11 @@ class PinEditor: UIViewController, UITextFieldDelegate {
                 self.configureUIForState(UIState.Submit)
             }
         }
-//        localSearchRequest = MKLocalSearchRequest()
-//        localSearchRequest.naturalLanguageQuery = locationTextField.text
-//        localSearch = MKLocalSearch(request: localSearchRequest)
-//        localSearch.startWithCompletionHandler { (localSearchResponse, error) -> Void in
-//        
-//            if localSearchResponse == nil {
-//                let alertController = UIAlertController(title: nil, message: "Place Not Found", preferredStyle: UIAlertControllerStyle.Alert)
-//                alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default, handler: nil))
-//                self.presentViewController(alertController, animated: true, completion: nil)
-//                return
-//            } else {
-//                self.pointAnnotation = MKPointAnnotation()
-//                self.pointAnnotation!.title = self.locationTextField.text
-//                self.pointAnnotation!.coordinate = CLLocationCoordinate2D(latitude: localSearchResponse!.boundingRegion.center.latitude, longitude: localSearchResponse!.boundingRegion.center.longitude)
-//                self.mapView.centerCoordinate = self.pointAnnotation!.coordinate
-//                self.mapView.setRegion(localSearchResponse!.boundingRegion, animated: true)
-//                self.pinAnnotationView = MKPinAnnotationView(annotation: self.pointAnnotation, reuseIdentifier: nil)
-//                self.mapView.addAnnotation(self.pinAnnotationView.annotation!)
-//                
-//                OnTheMapData.sharedInstance.studentInfoToPost?.lat = localSearchResponse!.boundingRegion.center.latitude
-//                OnTheMapData.sharedInstance.studentInfoToPost?.lon = localSearchResponse!.boundingRegion.center.longitude
-//                OnTheMapData.sharedInstance.studentInfoToPost?.location = self.locationTextField.text
-//                
-//                self.configureUIForState(UIState.Submit)
-//
-//                // Example of a search response:
-////                <MKLocalSearchResponse: 0x7f9a491d69d0> {
-////                    boundingRegion = "<center:+42.31441587, -70.97015347 span:+0.17292700, +0.44270304>";
-////                    mapItems =     (
-////                        "<MKMapItem: 0x7f9a44748220> {\n    isCurrentLocation = 0;\n    name = \"Boston, MA\";\n    placemark = \"Boston, MA, Boston, MA, United States @ <+42.35889400,-71.05674200> +/- 0.00m, region CLCircularRegion (identifier:'<+42.31441589,-70.97015350> radius 20581.91', center:<+42.31441589,-70.97015350>, radius:20581.91m)\";\n    url = \"http://en.wikipedia.org/wiki/Boston\";\n}"
-////                    );
-//            }
-//        }
+        
+        /* // un/comment this to use wait func to test UIState
+        }) // end of wait func
+        // END wait for testing
+        */
     }
     
     @IBAction func cancel(sender: AnyObject) {
@@ -173,26 +125,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         if let _ = linkTextField.text {
             OnTheMapData.sharedInstance.studentInfoToPost?.link = NSURL(string: linkTextField.text!)
         }
-        //client.postOnTheMap(OnTheMapData.sharedInstance.studentInfoToPost!)
         client.postOnTheMap(OnTheMapData.sharedInstance.studentInfoToPost!) {success, errorString, error in
-            //TODO: Error Handling
-            //        if let lat = OnTheMapData.sharedInstance.studentInfoToPost?.lat {
-            //            if let lon = OnTheMapData.sharedInstance.studentInfoToPost?.lon {
-            //                println("Lon and Lat looking good!")
-            //                client.postOnTheMap(locationTextView.text, lat: lat, lon: lon)
-            //            }
-            //        } else {
-            //            println("error posting lat or lon. Lat: \(OnTheMapData.sharedInstance.studentInfoToPost?.lat)  Lon: OnTheMapData.sharedInstance.studentInfoToPost?.lon) ")
-            //        }
-            //needs to be in completion handler?
-            
-            
-            //dismissViewControllerAnimated(true, completion:  NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self),, -> Void)
-            //TODO: refresh map and table AFTER the data has been refreshed
-            //notifyForRefresh()
-            //dismissViewControllerAnimated(true, completion: <#(() -> Void)?##() -> Void#>)
-            //dismissViewControllerAnimated(true, completion: notifyForRefresh())
-            //dismissViewControllerAnimated(true, completion: notifyForRefresh())
+
             if success {
                 /* TODO-To send alert message of success -- better if non-modal
                 dispatch_async(dispatch_get_main_queue()) {
@@ -206,17 +140,13 @@ class PinEditor: UIViewController, UITextFieldDelegate {
                 }
             } else {
                 dispatch_async(dispatch_get_main_queue()) {
-                    //TODO: I guess errorstring should be an optional? and then unwrapped
-                    //if let alertString = errorString {
                         self.alert(errorString)
-                   // }
                 }
             }
         }
-        //{ (localSearchResponse, error) -> Void in
     }
     
-//    func notifyForRefresh () -> VOid {
+//    func notifyForRefresh () -> Void {
 //        NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
 //        return
 //    }
@@ -234,16 +164,13 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(true)
-        //subscribeToKeyboardNotifications()
     }
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(true)
-        //unsubscribeToKeyboardNotifications()
     }
     
     func configureUIForState(state: UIState) {
-        //TODO: Add a state for when GEOcoding fails, and an alert view pops up
         if state == UIState.Find {
             activityView.stopAnimating()
             geocodingView.hidden = true
@@ -254,9 +181,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             locationTextField.hidden = false
             linkTextField.hidden = true
         } else if state == UIState.Geocoding {
-            geocodingView.hidden = true
-            activityView.stopAnimating()
-            //showActivityIndicator("Geocoding", true)
+            geocodingView.hidden = false
+            activityView.startAnimating()
             queryLabel.text = "Searching for you"
             findButton.hidden = false
             submitButton.hidden = true
@@ -266,7 +192,6 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         } else if state == UIState.GeocodingError {
             geocodingView.hidden = true
             activityView.stopAnimating()
-            //showActivityIndicator("Geocoding", true)
             queryLabel.text = "Where are you studying today?"
             findButton.hidden = false
             submitButton.hidden = true
@@ -276,7 +201,6 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         } else if state == UIState.Submit {
             activityView.stopAnimating()
             geocodingView.hidden = true
-            //showActivityIndicator("Found you!", false)
             queryLabel.text = "Enter a URL to share"
             findButton.hidden = true
             submitButton.hidden = false
@@ -285,67 +209,6 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             linkTextField.hidden = false
         }
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
-    //MARK:- POST data (//TODO:-move outside the view controller)
-    
-//    func postOnTheMap () {
-//        let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation")!)
-//        request.HTTPMethod = "POST"
-//        request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-//        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
-//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//        request.HTTPBody = "{\"uniqueKey\": \"1234\", \"firstName\": \"David\", \"lastName\": \"Pettit\",\"mapString\": \"Black Rock City, NV\", \"mediaURL\": \"http://www.burningman.org\",\"latitude\": 30.0104, \"longitude\": -112.07417}".dataUsingEncoding(NSUTF8StringEncoding)
-//        let session = NSURLSession.sharedSession()
-//        let task = session.dataTaskWithRequest(request) { data, response, error in
-//            if error != nil { // Handle error…
-//                return
-//            }
-//            println(NSString(data: data, encoding: NSUTF8StringEncoding))
-//        }
-//        task.resume()
-//    }
-    
-    //MARK: - Keyboard
-   /*
-    func subscribeToKeyboardNotifications() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
-    }
-    
-    func unsubscribeToKeyboardNotifications() {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
-    }
-    
-    func keyboardWillShow(notification: NSNotification) {
-        if locationTextField.isFirstResponder() {
-            view.frame.origin.y = -getKeyboardHeight(notification)
-        }
-    }
-    
-    func keyboardWillHide(notification: NSNotification) {
-        if keyboardHeight != nil && locationTextField.isFirstResponder() {
-            view.frame.origin.y = 0
-        }
-    }
-    
-    func getKeyboardHeight(notification: NSNotification) -> CGFloat {
-        let userInfo = notification.userInfo
-        let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
-        keyboardHeight = keyboardSize.CGRectValue().height
-        return keyboardHeight!
-    }
-    */
     
     //MARK: - Text and keyboard function - move to extension-navigation
     func textFieldShouldReturn(textField: UITextField) -> Bool {
@@ -370,5 +233,4 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         }
         super.touchesBegan(touches, withEvent:event)
     }
-    
 }

@@ -7,10 +7,7 @@
 //  Reads in raw JSON data as a dictionary and stores it in Swift data structures
 
 import Foundation
-//class TheOneAndOnlyKraken {
-//    static let sharedInstance = TheOneAndOnlyKraken()
-//    private init() {} //This prevents others from using the default '()' initializer for this class.
-//}
+
 class OnTheMapData {
     static let sharedInstance = OnTheMapData()
     var studentInfoArray: [StudentInfo]?// = []
@@ -20,7 +17,6 @@ class OnTheMapData {
     private init() {
         studentInfoToPost = StudentInfo()
         studentInfoArray = [StudentInfo]()
-      //  studentInfoArray : StudentInfo = []
     }
     
     func convertJSON(data: NSData, completionHandler: (success: Bool, errorString: String?) -> Void) {
@@ -97,11 +93,6 @@ class OnTheMapData {
 //            //$0.timestamp!.compare($1.timestamp!) == .OrderedAscending
 //        })
     }
-    
-    func abc(completion: (s1: StudentInfo?, s2: StudentInfo?) ->  Bool) -> [StudentInfo] {
-        let sortedInfo: [StudentInfo] = studentInfoArray!
-        return sortedInfo
-    }
 //
 //    func sortByDate (inputArray: [StudentInfo]?, completion: (s1: StudentInfo, s2: StudentInfo) -> Bool) -> [StudentInfo] {
 //        inputArray = (s1: StudentInfo, s2: StudentInfo) -> Bool in
@@ -155,22 +146,6 @@ class OnTheMapData {
 //            }
 
 //        }
-//    }
-
-//    func createInfoArray (dict: [String:String]) {
-//
-//    }
-    
-//
-//    init(data: String)
-    
-    // Example init
-//    init(sender: String, recipient: String)
-//    {
-//        self.sender = sender
-//        self.recipient = recipient
-//        
-//        timeStamp = NSDate()
 //    }
     
 }
