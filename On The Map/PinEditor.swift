@@ -346,6 +346,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         return keyboardHeight!
     }
     */
+    
+    //MARK: - Text and keyboard function - move to extension-navigation
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
@@ -368,4 +370,5 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         }
         super.touchesBegan(touches, withEvent:event)
     }
+    
 }

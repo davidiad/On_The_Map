@@ -334,7 +334,7 @@ class UdacityClient : NSObject {
                 if let response = response as? NSHTTPURLResponse {
                     errorString = "\(invalid) Status code: \(response.statusCode)"
                 } else if let response = response {
-                   errorString = "\(invalid)! Response: \(response)"
+                   errorString = "\(invalid) Response: \(response)"
                 }
                 completionHandler(success: false, errorString: errorString)
                 return

@@ -8,16 +8,18 @@
 
 import UIKit
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UITextFieldDelegate {
     
     let client = UdacityClient.sharedInstance()
     
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
+    @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var loginInfoLabel: UILabel!
         
     @IBAction func login(sender: AnyObject) {
         loginInfoLabel.text = ""
+        view.endEditing(true) // touch the button, the keyboard retracts
         let userName = usernameTextField.text
         let pw = passwordTextField.text
         if userName == "" {
@@ -131,5 +133,27 @@ println("error with login")
         // Dispose of any resources that can be recreated.
     }
     
+    //MARK:- Gesture Recognizer and keyboard functions
     
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        view.endEditing(true)
+        return true
+    }
+    
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+        // Don't let tap GR hide textfields if a textfield is being touched for editing
+        if touch.view == usernameTextField || touch.view == passwordTextField {
+            return false
+        }
+        // Anywhere else on the screen, allow the tap gesture recognizer to hideToolBars
+        return true
+    }
+    
+    // Cancels textfield editing when user touches outside the textfield
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        if usernameTextField.isFirstResponder() || passwordTextField.isFirstResponder() {
+            view.endEditing(true)
+        }
+        super.touchesBegan(touches, withEvent:event)
+    }
 }

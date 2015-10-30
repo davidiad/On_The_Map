@@ -115,12 +115,13 @@ class OnTheMapData {
         /* example closure
             func taskPOSTUdacityLogin (userName: String, pw: String, completionHandler: (success: Bool, key: String?, errorString: String?) -> Void) {
 */
-        
+    
+    //TODO: add completion handler, so can send back success and errors to the calling function. For instance, what if the user key is incorrect?
     func storeUserInfo(data: NSData) {
         do {
             let userResults = try (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary)
             if let userInfo = userResults!.valueForKey("user") as? NSDictionary {
-                print("userInfo: \(userInfo)")
+                //print("userInfo: \(userInfo)")
                 if let firstName = userInfo.valueForKey("first_name") as? String {
                     studentInfoToPost?.firstName = firstName
                 }
@@ -133,6 +134,10 @@ class OnTheMapData {
                 }
             }
         } catch {
+            
+        }
+        
+    }
 //            // Parse the JSON further to determine cause of login error
 //            if let status: AnyObject = userResults.valueForKey("status") {
 //                if status as! NSObject == 403 {
@@ -149,8 +154,8 @@ class OnTheMapData {
 //                completionHandler(success: false, key: nil, errorString: "Unknown problem with account")
 //            }
 
-        }
-    }
+//        }
+//    }
 
 //    func createInfoArray (dict: [String:String]) {
 //
