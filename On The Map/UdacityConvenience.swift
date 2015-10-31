@@ -62,7 +62,10 @@ extension UdacityClient {
                 return
             }
             
+            
             let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
+            
+            //TODO: should use do try catch here
             if let results = try! (NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments) as? NSDictionary) {
                 if let accountDictionary = results.valueForKey("account") as? NSDictionary {
                     if let key = accountDictionary.valueForKey("key") as? String {

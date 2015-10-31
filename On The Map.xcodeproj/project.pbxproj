@@ -13,12 +13,17 @@
 		63063CEA1B97BEBC0038D2E1 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 63063CE81B97BEBC0038D2E1 /* LaunchScreen.xib */; };
 		63063CF61B97BEBC0038D2E1 /* On_The_MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63063CF51B97BEBC0038D2E1 /* On_The_MapTests.swift */; };
 		63063D001B97C1050038D2E1 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63063CFF1B97C1050038D2E1 /* LoginViewController.swift */; };
+		6308AACD1BE4269700B20480 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6308AACC1BE4269700B20480 /* Bolts.framework */; settings = {ASSET_TAGS = (); }; };
 		630E894B1BBF40D20039BED3 /* PinEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630E894A1BBF40D20039BED3 /* PinEditor.swift */; };
 		630FB7681BC64B2D00B08658 /* extension-navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630FB7671BC64B2D00B08658 /* extension-navigation.swift */; };
 		6311EC8A1BA3ECA700986FF3 /* StudentInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6311EC891BA3ECA700986FF3 /* StudentInfo.swift */; };
 		6311EC8C1BA53E6A00986FF3 /* OnTheMapData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6311EC8B1BA53E6A00986FF3 /* OnTheMapData.swift */; };
 		634DC7DB1BCF262A004095F3 /* NSNotificationCenterKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634DC7DA1BCF262A004095F3 /* NSNotificationCenterKeys.swift */; };
 		636828A81BDF44CF005A8E1A /* LinkBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636828A71BDF44CF005A8E1A /* LinkBrowser.swift */; settings = {ASSET_TAGS = (); }; };
+		636828BA1BE4251B005A8E1A /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 636828B91BE4251B005A8E1A /* FBSDKCoreKit.framework */; settings = {ASSET_TAGS = (); }; };
+		636828BB1BE4251B005A8E1A /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 636828B91BE4251B005A8E1A /* FBSDKCoreKit.framework */; settings = {ASSET_TAGS = (); }; };
+		636828BD1BE42560005A8E1A /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 636828BC1BE42560005A8E1A /* FBSDKLoginKit.framework */; settings = {ASSET_TAGS = (); }; };
+		636828BE1BE42560005A8E1A /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 636828BC1BE42560005A8E1A /* FBSDKLoginKit.framework */; settings = {ASSET_TAGS = (); }; };
 		63B06DE21B9904B7006581EF /* UdacityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B06DE11B9904B7006581EF /* UdacityClient.swift */; };
 		63B06DE41B990597006581EF /* UdacityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B06DE31B990597006581EF /* UdacityConstants.swift */; };
 		63B06DE61B9906D7006581EF /* UdacityConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B06DE51B9906D7006581EF /* UdacityConfig.swift */; };
@@ -48,12 +53,15 @@
 		63063CF41B97BEBC0038D2E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63063CF51B97BEBC0038D2E1 /* On_The_MapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = On_The_MapTests.swift; sourceTree = "<group>"; };
 		63063CFF1B97C1050038D2E1 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		6308AACC1BE4269700B20480 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = "<group>"; };
 		630E894A1BBF40D20039BED3 /* PinEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinEditor.swift; sourceTree = "<group>"; };
 		630FB7671BC64B2D00B08658 /* extension-navigation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "extension-navigation.swift"; sourceTree = "<group>"; };
 		6311EC891BA3ECA700986FF3 /* StudentInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StudentInfo.swift; sourceTree = "<group>"; };
 		6311EC8B1BA53E6A00986FF3 /* OnTheMapData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnTheMapData.swift; sourceTree = "<group>"; };
 		634DC7DA1BCF262A004095F3 /* NSNotificationCenterKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSNotificationCenterKeys.swift; sourceTree = "<group>"; };
 		636828A71BDF44CF005A8E1A /* LinkBrowser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkBrowser.swift; sourceTree = "<group>"; };
+		636828B91BE4251B005A8E1A /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKCoreKit.framework; sourceTree = "<group>"; };
+		636828BC1BE42560005A8E1A /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		63B06DE11B9904B7006581EF /* UdacityClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityClient.swift; sourceTree = "<group>"; };
 		63B06DE31B990597006581EF /* UdacityConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityConstants.swift; sourceTree = "<group>"; };
 		63B06DE51B9906D7006581EF /* UdacityConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityConfig.swift; sourceTree = "<group>"; };
@@ -67,6 +75,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6308AACD1BE4269700B20480 /* Bolts.framework in Frameworks */,
+				636828BA1BE4251B005A8E1A /* FBSDKCoreKit.framework in Frameworks */,
+				636828BD1BE42560005A8E1A /* FBSDKLoginKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +85,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				636828BB1BE4251B005A8E1A /* FBSDKCoreKit.framework in Frameworks */,
+				636828BE1BE42560005A8E1A /* FBSDKLoginKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +96,9 @@
 		63063CCF1B97BEBC0038D2E1 = {
 			isa = PBXGroup;
 			children = (
+				6308AACC1BE4269700B20480 /* Bolts.framework */,
+				636828BC1BE42560005A8E1A /* FBSDKLoginKit.framework */,
+				636828B91BE4251B005A8E1A /* FBSDKCoreKit.framework */,
 				63063CDA1B97BEBC0038D2E1 /* On The Map */,
 				63063CF21B97BEBC0038D2E1 /* On The MapTests */,
 				63063CD91B97BEBC0038D2E1 /* Products */,
@@ -137,12 +153,20 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		636828AE1BE415F2005A8E1A /* Model-Data */ = {
+			isa = PBXGroup;
+			children = (
+				6311EC891BA3ECA700986FF3 /* StudentInfo.swift */,
+				6311EC8B1BA53E6A00986FF3 /* OnTheMapData.swift */,
+			);
+			name = "Model-Data";
+			sourceTree = "<group>";
+		};
 		63B06DDF1B99048E006581EF /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				63B06DE01B990495006581EF /* Client */,
-				6311EC891BA3ECA700986FF3 /* StudentInfo.swift */,
-				6311EC8B1BA53E6A00986FF3 /* OnTheMapData.swift */,
+				636828AE1BE415F2005A8E1A /* Model-Data */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -371,6 +395,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -408,6 +433,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -417,6 +443,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "On The Map/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.davidiad.On-The-Map.$(PRODUCT_NAME:rfc1034identifier)";
@@ -429,6 +459,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "On The Map/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.davidiad.On-The-Map.$(PRODUCT_NAME:rfc1034identifier)";
@@ -443,6 +477,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -463,6 +498,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "On The MapTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

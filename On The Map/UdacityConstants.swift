@@ -79,12 +79,11 @@ extension UdacityClient {
     
     // MARK: - JSON Body Keys
     struct JSONBodyKeys {
-        
-        static let MediaType = "media_type"
-        static let MediaID = "media_id"
-        static let Favorite = "favorite"
-        static let Watchlist = "watchlist"
-        
+        static let Username = "username"
+        static let Password = "password"
+        static let Udacity = "udacity"
+        static let Facebook = "facebook_mobile" //Facebook
+        static let AccessToken = "access_token" //Facebook
     }
     
     // MARK: - JSON Response Keys
