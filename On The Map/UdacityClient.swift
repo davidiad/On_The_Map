@@ -40,20 +40,16 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     //MARK:- Facebook Delegate Methods
     
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
-        // print("User Logged In thru FB")
-        
-        if ((error) != nil)
-        {
+        //print("Calling from FB login Butt")
+        //NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
+        if ((error) != nil) {
             // Process error
         }
         else if result.isCancelled {
             // Handle cancellations
         }
         else {
-            // If you ask for multiple permissions at once, you
-            // should check if specific permissions missing
-            if result.grantedPermissions.contains("public_profile")
-            {
+            if result.grantedPermissions.contains("public_profile") {
                 // Login to Udacity with Facebook token
                 let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
                 request.HTTPMethod = "POST"
@@ -70,13 +66,18 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     }
                     let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
                     print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+                    self.extractKey(newData) { success, userKey, errorString in
+                        if success {
+                            self.getAllInfo() { success, errorString in
+                                if success {
+                                    NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
+                                }
+                            }
+                        }
+                    }
                 }
-                task.resume()
-                //getUdacityUserKey(loginButton, userName: "", pw: "") { (success, userKey, errorString) in
                 
-                login(loginButton, userName: "", pw: "") {success, errorString in
-                    NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
-                }
+                task.resume()
             }
         }
     }
@@ -89,10 +90,9 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     // MARK: - GET
     
     func login(sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
-      
         
         self.getUdacityUserKey(sender, userName: userName, pw: pw) { (success, userKey, errorString) in
-    
+            
             if success {
                 // Add key from FB login here
                 self.getUdacityUserInfo(userKey!) { (success, errorString) in
@@ -118,127 +118,140 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         }
     }
     
-    func getAllInfo(userKey: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+    // Function to call after the Udacity User key has been gotten either from Udacity or through FB login
+    func getAllInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
         
-        
-    }
-    
-    
-    /* JSON response examples
-    Optional({"account": {"registered": true, "key": "u41464181"}, "session": {"id": "1476243674S27b30af924994d7bb5296b689449bd93", "expiration": "2015-12-12T03:41:14.728500Z"}})
-    Optional({"status": 400, "parameter": "udacity.username", "error": "trails.Error 400: Missing parameter 'username'"})
-    Optional({"status": 400, "parameter": "udacity.password", "error": "trails.Error 400: Missing parameter 'password'"})
-    Optional({"status": 403, "error": "Account not found or invalid credentials."})
-    */
-    
-    //TODO: -is this func being used?
-    // Helper func to extract the key from the JSON
-    func extractKey(data: NSData) {
-        //var key: String?
-        //var parsingError: NSError? = nil
-        do {
-            let results = try (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary)
-            if let accountDictionary = results!.valueForKey("account") as? NSDictionary {
-                print("acct dict: \(accountDictionary)")
-                if let key = accountDictionary.valueForKey("key") as? String {
-                    print("key Extract: \(key)")
-                    //key = keyString
-                    self.model.studentInfoToPost?.uniqueKey = key
-                    print("Key has been extracted and stored: \(self.model.studentInfoToPost?.uniqueKey)")
-                } else {
-                    print("parsing error with key")
-                }
-            } else {
-                print("parsing error with account")
-            }
-            //let keyString = ...
-            // put the key into the userInfo in the Model
-            //else login error -- invalid user id?
-        } catch {
+        if let userKey = model.studentInfoToPost?.uniqueKey {
             
-        }
-        //return key! // TODO: Need to handle errors where we don't get a key
-    }
-    
-    // Use Parse API to get student data, with completion handler
-    func getParseStudentInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
-        let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation?order=-updatedAt")!)
-        request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-        // added XXX to end to force an error for testing
-        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
-        let task = session.dataTaskWithRequest(request) { data, response, error in
-            
-            /* GUARD: Was there an error? */
-            guard (error == nil) else {
-                let errorString = ("There was an error with the Parse request: \(error)")
-                completionHandler(success: false, errorString: errorString)
-                return
-            }
-            
-            /* GUARD: Did we get a successful 2XX response? */
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                let invalid = "Your download request for student locations from Parse returned an invalid response!"
-                var errorString = invalid
-                if let response = response as? NSHTTPURLResponse {
-                    errorString = "\(invalid) Status code: \(response.statusCode)"
-                } else if let response = response {
-                   errorString = "\(invalid) Response: \(response)"
-                }
-                completionHandler(success: false, errorString: errorString)
-                return
-            }
-            
-            /* GUARD: Was there any data returned? */
-            guard let data = data else {
-                completionHandler(success: false, errorString: "No student location data was returned by the request to Parse!")
-                return
-            }
-
-            // Store the student data into the model
-            self.model.convertJSON(data) {success, errorString in
+            self.getUdacityUserInfo(userKey) { (success, errorString) in
+                
                 if success {
+                    
+                    self.getParseStudentInfo() {success, errorString in
+                        if success {
+                            // notify map and table to refresh
+                            NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
+                            completionHandler(success: success, errorString: errorString)
+                        } else {
+                            completionHandler(success: false, errorString: errorString)
+                        }
+                    }
+                } else {
                     completionHandler(success: success, errorString: errorString)
                 }
             }
-           
+        } else {
+            completionHandler(success: false, errorString: "The unique user key appears to be incorrect")
         }
-        task.resume()
     }
     
-    func udacityLogout () {
         
-        let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-        request.HTTPMethod = "DELETE"
-        var xsrfCookie: NSHTTPCookie? = nil
-        let sharedCookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage()
-        for cookie in sharedCookieStorage.cookies! { //as! [NSHTTPCookie] {
-            if cookie.name == "XSRF-TOKEN" { xsrfCookie = cookie }
-        }
-        if let xsrfCookie = xsrfCookie {
-            request.setValue(xsrfCookie.value, forHTTPHeaderField: "X-XSRF-TOKEN")
-        }
-        let session = NSURLSession.sharedSession()
-        //TODO: guard and swift 2.0 error handling
-        let task = session.dataTaskWithRequest(request) { data, response, error in
-            if error != nil { // Handle error…
-                print("An error has occurred when trying to log out")
-                //TODO: Notify the user whether logout was successful
-                return
+        /* JSON response examples
+        Optional({"account": {"registered": true, "key": "u41464181"}, "session": {"id": "1476243674S27b30af924994d7bb5296b689449bd93", "expiration": "2015-12-12T03:41:14.728500Z"}})
+        Optional({"status": 400, "parameter": "udacity.username", "error": "trails.Error 400: Missing parameter 'username'"})
+        Optional({"status": 400, "parameter": "udacity.password", "error": "trails.Error 400: Missing parameter 'password'"})
+        Optional({"status": 403, "error": "Account not found or invalid credentials."})
+        */
+        
+        // Helper func to extract the key from the JSON results
+        func extractKey(data: NSData, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
+            do {
+                let results = try (NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary)
+                if let accountDictionary = results!.valueForKey("account") as? NSDictionary {
+                    if let key = accountDictionary.valueForKey("key") as? String {
+                        self.model.studentInfoToPost?.uniqueKey = key
+                        print("Key has been extracted and stored: \(self.model.studentInfoToPost?.uniqueKey)")
+                        completionHandler(success: true, userKey: key, errorString: nil)
+                    } else {
+                        completionHandler(success: false, userKey: nil, errorString: "parsing error with key")
+                    }
+                } else {
+                    completionHandler(success: false, userKey: nil, errorString: "parsing error with account")
+                }
+            } catch {
+                completionHandler(success: false, userKey: nil, errorString: "Could not parse the account info from Udacity")
             }
-            let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-            print(NSString(data: newData, encoding: NSUTF8StringEncoding))
-            //TODO:-verify that logout was successful
         }
-        task.resume()
-        model.studentInfoToPost?.uniqueKey = "default"
-        model.studentInfoToPost?.firstName  = "D"
-        model.studentInfoToPost?.lastName = "Fault"
-        //TODO: delete the user info, so it really is logged out
-    }
-
+        
+        // Use Parse API to get student data, with completion handler
+        func getParseStudentInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
+            let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation?order=-updatedAt")!)
+            request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
+            // added XXX to end to force an error for testing
+            request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
+            let task = session.dataTaskWithRequest(request) { data, response, error in
+                
+                /* GUARD: Was there an error? */
+                guard (error == nil) else {
+                    let errorString = ("There was an error with the Parse request: \(error)")
+                    completionHandler(success: false, errorString: errorString)
+                    return
+                }
+                
+                /* GUARD: Did we get a successful 2XX response? */
+                guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
+                    let invalid = "Your download request for student locations from Parse returned an invalid response!"
+                    var errorString = invalid
+                    if let response = response as? NSHTTPURLResponse {
+                        errorString = "\(invalid) Status code: \(response.statusCode)"
+                    } else if let response = response {
+                        errorString = "\(invalid) Response: \(response)"
+                    }
+                    completionHandler(success: false, errorString: errorString)
+                    return
+                }
+                
+                /* GUARD: Was there any data returned? */
+                guard let data = data else {
+                    completionHandler(success: false, errorString: "No student location data was returned by the request to Parse!")
+                    return
+                }
+                
+                // Store the student data into the model
+                self.model.convertJSON(data) {success, errorString in
+                    if success {
+                        completionHandler(success: success, errorString: errorString)
+                    }
+                }
+                
+            }
+            task.resume()
+        }
+        
+        func udacityLogout () {
+            
+            let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
+            request.HTTPMethod = "DELETE"
+            var xsrfCookie: NSHTTPCookie? = nil
+            let sharedCookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage()
+            for cookie in sharedCookieStorage.cookies! { //as! [NSHTTPCookie] {
+                if cookie.name == "XSRF-TOKEN" { xsrfCookie = cookie }
+            }
+            if let xsrfCookie = xsrfCookie {
+                request.setValue(xsrfCookie.value, forHTTPHeaderField: "X-XSRF-TOKEN")
+            }
+            let session = NSURLSession.sharedSession()
+            //TODO: guard and swift 2.0 error handling
+            let task = session.dataTaskWithRequest(request) { data, response, error in
+                if error != nil { // Handle error…
+                    print("An error has occurred when trying to log out")
+                    //TODO: Notify the user whether logout was successful
+                    return
+                }
+                let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+                //TODO:-verify that logout was successful
+            }
+            task.resume()
+            model.studentInfoToPost?.uniqueKey = "default"
+            model.studentInfoToPost?.firstName  = "D"
+            model.studentInfoToPost?.lastName = "Fault"
+            //TODO: delete the user info, so it really is logged out
+        }
+        
         /*
-    // Attempting to generalize all GET data's. Is it worth it?
-    func taskForGETData(method: String, parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+        // Attempting to generalize all GET data's. Is it worth it?
+        func taskForGETData(method: String, parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         
         /* 1. Set the parameters */
         var mutableParameters = parameters
@@ -254,24 +267,24 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
-            
-            /* 5/6. Parse the data and use the data (happens in completion handler) */
-            if let error = downloadError {
-                let newError = UdacityClient.errorForData(data, response: response, error: error)
-                completionHandler(result: nil, error: downloadError)
-            } else {
-                UdacityClient.parseJSONWithCompletionHandler(data, completionHandler: completionHandler)
-            }
+        
+        /* 5/6. Parse the data and use the data (happens in completion handler) */
+        if let error = downloadError {
+        let newError = UdacityClient.errorForData(data, response: response, error: error)
+        completionHandler(result: nil, error: downloadError)
+        } else {
+        UdacityClient.parseJSONWithCompletionHandler(data, completionHandler: completionHandler)
+        }
         }
         
         /* 7. Start the request */
         task.resume()
         
         return task
-    }
-     */
-    /*
-    func taskForGETMethod(method: String, parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+        }
+        */
+        /*
+        func taskForGETMethod(method: String, parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         
         /* 1. Set the parameters */
         var mutableParameters = parameters
@@ -284,202 +297,202 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
-            
-            /* 5/6. Parse the data and use the data (happens in completion handler) */
-            if let error = downloadError {
-                let newError = UdacityClient.errorForData(data, response: response, error: error)
-                completionHandler(result: nil, error: downloadError)
-            } else {
-                UdacityClient.parseJSONWithCompletionHandler(data, completionHandler: completionHandler)
-            }
+        
+        /* 5/6. Parse the data and use the data (happens in completion handler) */
+        if let error = downloadError {
+        let newError = UdacityClient.errorForData(data, response: response, error: error)
+        completionHandler(result: nil, error: downloadError)
+        } else {
+        UdacityClient.parseJSONWithCompletionHandler(data, completionHandler: completionHandler)
+        }
         }
         
         /* 7. Start the request */
         task.resume()
         
         return task
-    }
-    
-    */
-    // MARK: - POST 
-
-    // Pass in the whole StudentInfo, rather than each parameter separate -- replaces the above
-    func postOnTheMap (userInfo: StudentInfo, completionHandler: (success: Bool, errorString: String, error: NSError?) -> Void) {
-        //TODO:- add completion handler to pass errorString
-        let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation")!)
-        request.HTTPMethod = "POST"
-        request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
         
-        // ?Make an array of strings, and then iterate to add to the string? Checking for nil as we go?
-        // <String> += <String>
-        var HTTPBodyString = "{\"uniqueKey\": \""
-        if let uniqueKey = userInfo.uniqueKey { HTTPBodyString += uniqueKey }
-        HTTPBodyString += "\", \"firstName\": \""
-        if let firstName = userInfo.firstName { HTTPBodyString += firstName }
-        HTTPBodyString += "\", \"lastName\": \""
-        if let lastName = userInfo.lastName { HTTPBodyString += lastName }
-        HTTPBodyString += "\", \"mapString\": \""
-        if let location = userInfo.location { HTTPBodyString += location }
-        HTTPBodyString += "\", \"mediaURL\": \""
-        if let link = userInfo.link {
-            HTTPBodyString += "\(link)"
-        }/* else {
+        */
+        // MARK: - POST
+        
+        // Pass in the whole StudentInfo, rather than each parameter separate -- replaces the above
+        func postOnTheMap (userInfo: StudentInfo, completionHandler: (success: Bool, errorString: String, error: NSError?) -> Void) {
+            //TODO:- add completion handler to pass errorString
+            let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation")!)
+            request.HTTPMethod = "POST"
+            request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
+            request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            // ?Make an array of strings, and then iterate to add to the string? Checking for nil as we go?
+            // <String> += <String>
+            var HTTPBodyString = "{\"uniqueKey\": \""
+            if let uniqueKey = userInfo.uniqueKey { HTTPBodyString += uniqueKey }
+            HTTPBodyString += "\", \"firstName\": \""
+            if let firstName = userInfo.firstName { HTTPBodyString += firstName }
+            HTTPBodyString += "\", \"lastName\": \""
+            if let lastName = userInfo.lastName { HTTPBodyString += lastName }
+            HTTPBodyString += "\", \"mapString\": \""
+            if let location = userInfo.location { HTTPBodyString += location }
+            HTTPBodyString += "\", \"mediaURL\": \""
+            if let link = userInfo.link {
+                HTTPBodyString += "\(link)"
+            }/* else {
             HTTPBodyString += "https://vimeo.com/user39343057" // my vimeo site
-        }*/
-        HTTPBodyString += "\", \"latitude\": "
-        if let lat = userInfo.lat { HTTPBodyString += "\(lat)" }
-        HTTPBodyString += ", \"longitude\": "
-        if let lon = userInfo.lon { HTTPBodyString += "\(lon)" }
-        HTTPBodyString += "}"
-        
-        request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
-        let session = NSURLSession.sharedSession()
-        let task = session.dataTaskWithRequest(request) { data, response, error in
-            if error != nil { // Handle error…
-                completionHandler(success: false, errorString: "Error in POSTing: The Internet connection appears to be offline", error: error)
-                return
-            }
-            //TODO:- Check for created at, and not error in data
-            UdacityClient.parseJSONWithCompletionHandler(data!) {results, error in
-                if error != nil {
-                    completionHandler(success: false, errorString: "parsing error", error: error)
-                } else {
-                    var messageString = ""
-                    print(results)
-                    if let createdAtString = results.valueForKey("createdAt") as? String {
-                        messageString = "Successful POST at " + createdAtString
-                        completionHandler(success: true, errorString: messageString, error: error)
-                    } else if let eString = results.valueForKey("error") as? String {
-                        messageString = "POST failed: " + eString
-                        completionHandler(success: false, errorString: messageString, error: error)
+            }*/
+            HTTPBodyString += "\", \"latitude\": "
+            if let lat = userInfo.lat { HTTPBodyString += "\(lat)" }
+            HTTPBodyString += ", \"longitude\": "
+            if let lon = userInfo.lon { HTTPBodyString += "\(lon)" }
+            HTTPBodyString += "}"
+            
+            request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
+            let session = NSURLSession.sharedSession()
+            let task = session.dataTaskWithRequest(request) { data, response, error in
+                if error != nil { // Handle error…
+                    completionHandler(success: false, errorString: "Error in POSTing: The Internet connection appears to be offline", error: error)
+                    return
+                }
+                //TODO:- Check for created at, and not error in data
+                UdacityClient.parseJSONWithCompletionHandler(data!) {results, error in
+                    if error != nil {
+                        completionHandler(success: false, errorString: "parsing error", error: error)
+                    } else {
+                        var messageString = ""
+                        print(results)
+                        if let createdAtString = results.valueForKey("createdAt") as? String {
+                            messageString = "Successful POST at " + createdAtString
+                            completionHandler(success: true, errorString: messageString, error: error)
+                        } else if let eString = results.valueForKey("error") as? String {
+                            messageString = "POST failed: " + eString
+                            completionHandler(success: false, errorString: messageString, error: error)
+                        }
                     }
                 }
             }
-        }
-        task.resume()
-        /* Examples of data
-        Optional({"createdAt":"2015-10-19T03:18:31.647Z","objectId":"ZZkOnFowB5"} // successful POST
-        Optional({"error":"method not allowed"} // (when mispelled POST)
-        Error when wifi is off:
-        Error Domain=NSURLErrorDomain Code=-1009 "The Internet connection appears to be offline." UserInfo=0x7fb69949f0c0 {NSUnderlyingError=0x7fb6a06c9110 "The operation couldn’t be completed. (kCFErrorDomainCFNetwork error -1009.)", NSErrorFailingURLStringKey=https://api.parse.com/1/classes/StudentLocation, NSErrorFailingURLKey=https://api.parse.com/1/classes/StudentLocation, _kCFStreamErrorDomainKey=12, _kCFStreamErrorCodeKey=8, NSLocalizedDescription=The Internet connection appears to be offline.}
-        */
-    }
-    
-    func taskForPOSTMethod(method: String, parameters: [String : AnyObject], jsonBody: [String:AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-        
-        /* 1. Set the parameters */
-        var mutableParameters = parameters
-        mutableParameters[ParameterKeys.ParseApiKey] = Constants.ParseApiKey
-        
-        /* 2/3. Build the URL and configure the request */
-        let urlString = Constants.BaseURLSecure + method + UdacityClient.escapedParameters(mutableParameters)
-        let url = NSURL(string: urlString)!
-        let request = NSMutableURLRequest(URL: url)
-        var jsonifyError: NSError? = nil
-        request.HTTPMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        do {
-            request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(jsonBody, options: [])
-        } catch let error as NSError {
-            jsonifyError = error
-            request.HTTPBody = nil
-            print("jsonify error: \(jsonifyError)")
+            task.resume()
+            /* Examples of data
+            Optional({"createdAt":"2015-10-19T03:18:31.647Z","objectId":"ZZkOnFowB5"} // successful POST
+            Optional({"error":"method not allowed"} // (when mispelled POST)
+            Error when wifi is off:
+            Error Domain=NSURLErrorDomain Code=-1009 "The Internet connection appears to be offline." UserInfo=0x7fb69949f0c0 {NSUnderlyingError=0x7fb6a06c9110 "The operation couldn’t be completed. (kCFErrorDomainCFNetwork error -1009.)", NSErrorFailingURLStringKey=https://api.parse.com/1/classes/StudentLocation, NSErrorFailingURLKey=https://api.parse.com/1/classes/StudentLocation, _kCFStreamErrorDomainKey=12, _kCFStreamErrorCodeKey=8, NSLocalizedDescription=The Internet connection appears to be offline.}
+            */
         }
         
-        /* 4. Make the request */
-        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
+        func taskForPOSTMethod(method: String, parameters: [String : AnyObject], jsonBody: [String:AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
             
-            /* 5/6. Parse the data and use the data (happens in completion handler) */
-            if let _ = downloadError {
-                //let newError = UdacityClient.errorForData(data, response: response, error: error)
-                completionHandler(result: nil, error: downloadError)
+            /* 1. Set the parameters */
+            var mutableParameters = parameters
+            mutableParameters[ParameterKeys.ParseApiKey] = Constants.ParseApiKey
+            
+            /* 2/3. Build the URL and configure the request */
+            let urlString = Constants.BaseURLSecure + method + UdacityClient.escapedParameters(mutableParameters)
+            let url = NSURL(string: urlString)!
+            let request = NSMutableURLRequest(URL: url)
+            var jsonifyError: NSError? = nil
+            request.HTTPMethod = "POST"
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            do {
+                request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(jsonBody, options: [])
+            } catch let error as NSError {
+                jsonifyError = error
+                request.HTTPBody = nil
+                print("jsonify error: \(jsonifyError)")
+            }
+            
+            /* 4. Make the request */
+            let task = session.dataTaskWithRequest(request) {data, response, downloadError in
+                
+                /* 5/6. Parse the data and use the data (happens in completion handler) */
+                if let _ = downloadError {
+                    //let newError = UdacityClient.errorForData(data, response: response, error: error)
+                    completionHandler(result: nil, error: downloadError)
+                } else {
+                    UdacityClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
+                }
+            }
+            
+            /* 7. Start the request */
+            task.resume()
+            
+            return task
+        }
+        
+        // MARK: - Helpers
+        
+        /* Helper: Substitute the key for the value that is contained within the method name */
+        class func subtituteKeyInMethod(method: String, key: String, value: String) -> String? {
+            if method.rangeOfString("{\(key)}") != nil {
+                return method.stringByReplacingOccurrencesOfString("{\(key)}", withString: value)
             } else {
-                UdacityClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
+                return nil
             }
         }
         
-        /* 7. Start the request */
-        task.resume()
-        
-        return task
-    }
-    
-    // MARK: - Helpers
-    
-    /* Helper: Substitute the key for the value that is contained within the method name */
-    class func subtituteKeyInMethod(method: String, key: String, value: String) -> String? {
-        if method.rangeOfString("{\(key)}") != nil {
-            return method.stringByReplacingOccurrencesOfString("{\(key)}", withString: value)
-        } else {
-            return nil
-        }
-    }
-    
-    /* Helper: Given a response with error, see if a status_message is returned, otherwise return the previous error */
-    class func errorForData(data: NSData?, response: NSURLResponse?, error: NSError) -> NSError {
-        
-        if let parsedResult = (try? NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)) as? [String : AnyObject] {
+        /* Helper: Given a response with error, see if a status_message is returned, otherwise return the previous error */
+        class func errorForData(data: NSData?, response: NSURLResponse?, error: NSError) -> NSError {
             
-            if let errorMessage = parsedResult[UdacityClient.JSONResponseKeys.StatusMessage] as? String {
+            if let parsedResult = (try? NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)) as? [String : AnyObject] {
                 
-                let userInfo = [NSLocalizedDescriptionKey : errorMessage]
-                
-                return NSError(domain: "Udacity Error", code: 1, userInfo: userInfo)
+                if let errorMessage = parsedResult[UdacityClient.JSONResponseKeys.StatusMessage] as? String {
+                    
+                    let userInfo = [NSLocalizedDescriptionKey : errorMessage]
+                    
+                    return NSError(domain: "Udacity Error", code: 1, userInfo: userInfo)
+                }
             }
+            
+            return error
         }
         
-        return error
-    }
-    
-    // from MovieMan 2.0
-    /* Helper: Given raw JSON, return a usable Foundation object */
-    class func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
-        
-        var parsedResult: AnyObject!
-        do {
-            parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-        } catch {
-            let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandler(result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
+        // from MovieMan 2.0
+        /* Helper: Given raw JSON, return a usable Foundation object */
+        class func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+            
+            var parsedResult: AnyObject!
+            do {
+                parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+            } catch {
+                let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
+                completionHandler(result: nil, error: NSError(domain: "parseJSONWithCompletionHandler", code: 1, userInfo: userInfo))
+            }
+            
+            completionHandler(result: parsedResult, error: nil)
         }
         
-        completionHandler(result: parsedResult, error: nil)
-    }
-    
-    /* Helper function: Given a dictionary of parameters, convert to a string for a url */
-    class func escapedParameters(parameters: [String : AnyObject]) -> String {
-        
-        var urlVars = [String]()
-        
-        for (key, value) in parameters {
+        /* Helper function: Given a dictionary of parameters, convert to a string for a url */
+        class func escapedParameters(parameters: [String : AnyObject]) -> String {
             
-            /* Make sure that it is a string value */
-            let stringValue = "\(value)"
+            var urlVars = [String]()
             
-            /* Escape it */
-            let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+            for (key, value) in parameters {
+                
+                /* Make sure that it is a string value */
+                let stringValue = "\(value)"
+                
+                /* Escape it */
+                let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+                
+                /* Append it */
+                urlVars += [key + "=" + "\(escapedValue!)"]
+                
+            }
             
-            /* Append it */
-            urlVars += [key + "=" + "\(escapedValue!)"]
-            
+            return (!urlVars.isEmpty ? "?" : "") + urlVars.joinWithSeparator("&")
         }
         
-        return (!urlVars.isEmpty ? "?" : "") + urlVars.joinWithSeparator("&")
-    }
-    
-    // MARK: - Shared Instance
-    
-    class func sharedInstance() -> UdacityClient {
+        // MARK: - Shared Instance
         
-        struct Singleton {
-            static var sharedInstance = UdacityClient()
+        class func sharedInstance() -> UdacityClient {
+            
+            struct Singleton {
+                static var sharedInstance = UdacityClient()
+            }
+            
+            return Singleton.sharedInstance
         }
-        
-        return Singleton.sharedInstance
-    }
 }
 
 /* Unused, older code. Delete at some point

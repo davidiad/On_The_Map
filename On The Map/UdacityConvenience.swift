@@ -24,69 +24,49 @@ extension UdacityClient {
     func getUdacityUserKey (sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
         //TODO: get url string from constants
         // Login is through regular login button
-        if sender.tag == 100 {
-            let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-            request.HTTPMethod = "POST"
-            request.addValue("application/json", forHTTPHeaderField: "Accept")
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            let HTTPBodyString = "{\"udacity\": {\"username\": \"" + userName + "\", \"password\": \"" + pw + "\"}}"
+        let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
+        request.HTTPMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        let HTTPBodyString = "{\"udacity\": {\"username\": \"" + userName + "\", \"password\": \"" + pw + "\"}}"
+        
+        request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
+        
+        let session = NSURLSession.sharedSession()
+        let task = session.dataTaskWithRequest(request) { data, response, error in
+            guard (error == nil) else {
+                let errorString = ("There was an error with the Udacity User Key request: \(error)")
+                completionHandler(success: false, userKey: nil, errorString: errorString)
+                return
+            }
+            /* GUARD: Did we get a successful 2XX response? */
+            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
+                let invalid = "Your request to log in to Udacity returned an invalid response!"
+                var errorString = invalid
+                if let response = response as? NSHTTPURLResponse {
+                    errorString = "\(invalid) Status code: \(response.statusCode)"
+                } else if let response = response {
+                    errorString = "\(invalid) Response: \(response)"
+                }
+                completionHandler(success: false, userKey: nil, errorString: errorString)
+                return
+            }
+            /* GUARD: Was there any data returned? */
+            guard let data = data else {
+                completionHandler(success: false, userKey: nil, errorString: "No user info data was returned by the request to Udacity!")
+                return
+            }
+            let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
             
-            request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
-            
-            let session = NSURLSession.sharedSession()
-            let task = session.dataTaskWithRequest(request) { data, response, error in
-                //TODO: subject to crash if unwrapping an optional (data I guess)
-                
-                // Guard for errors TODO: if possible, make into a function which can be reused
-                /* GUARD: Was there an error? */
-                guard (error == nil) else {
-                    let errorString = ("There was an error with the Udacity User Key request: \(error)")
-                    completionHandler(success: false, userKey: nil, errorString: errorString)
-                    return
-                }
-                
-                /* GUARD: Did we get a successful 2XX response? */
-                guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                    let invalid = "Your request to log in to Udacity returned an invalid response!"
-                    var errorString = invalid
-                    if let response = response as? NSHTTPURLResponse {
-                        errorString = "\(invalid) Status code: \(response.statusCode)"
-                    } else if let response = response {
-                        errorString = "\(invalid) Response: \(response)"
-                    }
-                    completionHandler(success: false, userKey: nil, errorString: errorString)
-                    return
-                }
-                
-                /* GUARD: Was there any data returned? */
-                guard let data = data else {
-                    completionHandler(success: false, userKey: nil, errorString: "No user info data was returned by the request to Udacity!")
-                    return
-                }
-                
-                
-                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-                
-                //TODO: should use do try catch here
-                if let results = try! (NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments) as? NSDictionary) {
-                    if let accountDictionary = results.valueForKey("account") as? NSDictionary {
-                        if let key = accountDictionary.valueForKey("key") as? String {
-                            self.model.studentInfoToPost?.uniqueKey = key
-                            completionHandler(success: true, userKey: key, errorString: nil)
-                        }
-                    } else {
-                        completionHandler(success: false, userKey: nil, errorString: "Could not parse the account info from Udacity")
-                    }
+            self.extractKey(newData) { success, userKey, errorString in
+                if success {
+                    completionHandler(success: success, userKey: userKey, errorString: nil)
                 } else {
-                    completionHandler(success: false, userKey: nil, errorString: "Was not able to read the user info from Udacity")
+                    completionHandler(success: success, userKey: nil, errorString: "Error in extracting key")
                 }
             }
-            task.resume()
-            
-        // login is through Facebook login button
-        } else if sender.tag == 200 {
-            print(sender.tag)
         }
+        task.resume()
     }
     
     func getUdacityUserInfo (key: String, completionHandler: (success: Bool, errorString: String?) -> Void) {

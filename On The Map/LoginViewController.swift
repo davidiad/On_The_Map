@@ -17,27 +17,31 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
+    @IBOutlet weak var facebookLoginButtonHolder: UIView!
     @IBOutlet weak var loginInfoLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loginInfoLabel.text = ""
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "segueToTabController", name: segueNotificationKey, object: nil)
+        
         // Facebook login
-        if (FBSDKAccessToken.currentAccessToken() != nil)
-        {
+        if (FBSDKAccessToken.currentAccessToken() != nil) {
             // User is already logged in, do work such as go to next view controller.
-        }
-        else
-        {
+        } else {
             let loginView : FBSDKLoginButton = FBSDKLoginButton()
-            loginView.tag = 200
+            //loginView.tag = 200
             view.addSubview(loginView)
-            loginView.center = view.center
+            // set the position of the FB login button relative to a placeholder on the storyboard
+            //TODO: update the FB button position with the device changes orientation
+            //TODO: make sure that warning label text won't overlap buttons
+            loginView.center.x = view.center.x
+            loginView.center.y = facebookLoginButtonHolder.center.y
+            
             loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
             loginView.delegate = client
         }
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "segueToTabController", name: segueNotificationKey, object: self)
     }
     
     @IBAction func login(sender: AnyObject) {
@@ -66,7 +70,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         client.login(sender as! UIButton, userName: userName!, pw: pw!) { success, errorString in
             if success {
                 dispatch_async(dispatch_get_main_queue()) {
-                    self.performSegueWithIdentifier("loginSegue", sender: sender)
+                    self.client.getAllInfo() {success, errorString in
+                        if success {
+                           self.performSegueWithIdentifier("loginSegue", sender: sender) 
+                        }
+                        
+                    }
+                    
                 }
             } else {
                 dispatch_async(dispatch_get_main_queue()) {
@@ -90,12 +100,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    func completeFBLogin() {
+        client.getAllInfo(){ success, errorString in
+            if success {
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.performSegueWithIdentifier("loginSegue", sender: nil)
+                }
+            }
+        }
+    }
+    
     func segueToTabController() {
         //TODO: (?) add a delay so it doesn't segue too fast?
         print("in seg to tab contrl")
-        performSegueWithIdentifier("loginSegue", sender: nil)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.performSegueWithIdentifier("loginSegue", sender: nil)
+        }
     }
-        
+    
     func shakeView(view: UIView){
         let shake:CABasicAnimation = CABasicAnimation(keyPath: "position")
         shake.duration = 0.1
