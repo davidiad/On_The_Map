@@ -27,7 +27,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     override func viewDidLoad() {
         setupNav()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "readAndDisplayAnnotations", name: myNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "readAndDisplayAnnotations", name: refreshNotificationKey, object: nil)
         navigationController?.title = "On The Map"
     }
     

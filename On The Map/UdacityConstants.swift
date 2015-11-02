@@ -20,7 +20,7 @@ extension UdacityClient {
     struct Constants {
         
         // MARK: Notifications
-        static let myNotificationKey = "notificationKey"
+        static let refreshNotificationKey = "refresh_notification_key"
         
         // MARK: API Key
         static let ParseApiKey : String = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"

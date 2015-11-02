@@ -38,7 +38,7 @@ extension UIViewController {
         let client = UdacityClient.sharedInstance()
         client.getParseStudentInfo() {parseSuccess, parseError in
             if parseSuccess {
-                NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
             } else {
                 self.alert("Download Failed :-(")
             }

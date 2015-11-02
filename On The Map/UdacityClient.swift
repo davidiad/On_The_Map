@@ -14,8 +14,10 @@
 //
 
 import Foundation
+import FBSDKCoreKit
+import FBSDKLoginKit
 
-class UdacityClient : NSObject {
+class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     
     /* shared data model */
     var model = OnTheMapData.sharedInstance
@@ -35,13 +37,64 @@ class UdacityClient : NSObject {
         super.init()
     }
     
+    //MARK:- Facebook Delegate Methods
+    
+    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
+        // print("User Logged In thru FB")
+        
+        if ((error) != nil)
+        {
+            // Process error
+        }
+        else if result.isCancelled {
+            // Handle cancellations
+        }
+        else {
+            // If you ask for multiple permissions at once, you
+            // should check if specific permissions missing
+            if result.grantedPermissions.contains("public_profile")
+            {
+                // Login to Udacity with Facebook token
+                let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
+                request.HTTPMethod = "POST"
+                request.addValue("application/json", forHTTPHeaderField: "Accept")
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                
+                request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + result.token.tokenString + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
+                
+                let session = NSURLSession.sharedSession()
+                let task = session.dataTaskWithRequest(request) { data, response, error in
+                    if error != nil {
+                        // Handle error...
+                        return
+                    }
+                    let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+                    print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+                }
+                task.resume()
+                //getUdacityUserKey(loginButton, userName: "", pw: "") { (success, userKey, errorString) in
+                
+                login(loginButton, userName: "", pw: "") {success, errorString in
+                    NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
+                }
+            }
+        }
+    }
+    
+    func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
+        udacityLogout()
+        //alert("Facebook log out")
+    }
+    
     // MARK: - GET
     
-    func login(userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
-        self.getUdacityUserKey(userName, pw: pw) { (success, userKey, errorString) in
-            
+    func login(sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+      
+        
+        self.getUdacityUserKey(sender, userName: userName, pw: pw) { (success, userKey, errorString) in
+    
             if success {
-                
+                // Add key from FB login here
                 self.getUdacityUserInfo(userKey!) { (success, errorString) in
                     
                     if success {
@@ -49,7 +102,7 @@ class UdacityClient : NSObject {
                         self.getParseStudentInfo() {success, errorString in
                             if success {
                                 // notify map and table to refresh
-                                NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+                                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
                                 completionHandler(success: success, errorString: errorString)
                             } else {
                                 completionHandler(success: false, errorString: errorString)
@@ -63,6 +116,11 @@ class UdacityClient : NSObject {
                 completionHandler(success: success, errorString: errorString)
             }
         }
+    }
+    
+    func getAllInfo(userKey: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+        
+        
     }
     
     
@@ -160,6 +218,7 @@ class UdacityClient : NSObject {
             request.setValue(xsrfCookie.value, forHTTPHeaderField: "X-XSRF-TOKEN")
         }
         let session = NSURLSession.sharedSession()
+        //TODO: guard and swift 2.0 error handling
         let task = session.dataTaskWithRequest(request) { data, response, error in
             if error != nil { // Handle error…
                 print("An error has occurred when trying to log out")
@@ -601,7 +660,7 @@ completionHandler(success: false, key: nil, errorString: "Parsing error?")
 task.resume()
 self.getParseStudentInfo() {parseSuccess, parseError in
 if parseSuccess {
-NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
 } else {
 completionHandler(success: false, key: nil, errorString: "Download Failed")
 }

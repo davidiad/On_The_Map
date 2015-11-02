@@ -14,7 +14,7 @@ class ListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNav()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "reload", name: myNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "reload", name: refreshNotificationKey, object: nil)
         
 //        navigationItem.leftBarButtonItem = editButtonItem()
 //        var rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Pin", style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped")
@@ -29,7 +29,7 @@ class ListViewController: UITableViewController {
     
 //    override func viewWillAppear(animated: Bool) {
 //        println("view WILL appear")
-//        NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+//        NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
 //        tableView.reloadData()
 //    }
 

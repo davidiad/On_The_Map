@@ -10,7 +10,7 @@ import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
 
-class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate {
     
     let client = UdacityClient.sharedInstance()
     
@@ -31,64 +31,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         else
         {
             let loginView : FBSDKLoginButton = FBSDKLoginButton()
-            self.view.addSubview(loginView)
-            loginView.center = self.view.center
-            loginView.readPermissions = ["public_profile", "email", "user_friends"]
-            loginView.delegate = self
+            loginView.tag = 200
+            view.addSubview(loginView)
+            loginView.center = view.center
+            loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
+            loginView.delegate = client
         }
-    }
-    
-    //MARK:- Facebook Delegate Methods
-    
-    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
-        print("User Logged In thru FB")
-        
-        if ((error) != nil)
-        {
-            // Process error
-        }
-        else if result.isCancelled {
-            // Handle cancellations
-        }
-        else {
-            // If you ask for multiple permissions at once, you
-            // should check if specific permissions missing
-            if result.grantedPermissions.contains("email")
-            {
-                // Login to Udacity with Facebook token
-                print(result.token.tokenString)
-                
-                let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-                request.HTTPMethod = "POST"
-                request.addValue("application/json", forHTTPHeaderField: "Accept")
-                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                
-                //let datastring = NSString(data: result.token.tokenString!, encoding:NSUTF8StringEncoding)
-                
-                request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + result.token.tokenString + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
-
-                // my token. is it the same every time? -- No
-                
-                /* CAAFMS4SN9e8BAGcpaW3vXq3lh6ymAhnPZBwLuvtmwile994qbLcnY4jRBU9HVaVxIR2PZBkqHmJ8X8ToPBjTfz81T4y0s0pl0leplPcLjgf8lptLIuQXbxn1CCnz5Alcta3yy7aXs4TaCZA91t4tFyQUJNTZBYW54gFebvtatlgmOMJK5mgWHZBbG4VsPI1GxDVCrzwZAQZALTXIkYKUp4ZCqi5ptSkmJ2QQUsDRjmwxSwZDZD
-                */
-                
-                let session = NSURLSession.sharedSession()
-                let task = session.dataTaskWithRequest(request) { data, response, error in
-                    if error != nil {
-                        // Handle error...
-                        return
-                    }
-                    let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-                    print(NSString(data: newData, encoding: NSUTF8StringEncoding))
-                }
-                task.resume()
-                
-            }
-        }
-    }
-    
-    func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
-        alert("Facebook log out")
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "segueToTabController", name: segueNotificationKey, object: self)
     }
     
     @IBAction func login(sender: AnyObject) {
@@ -113,7 +62,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         } else {
             loginInfoLabel.text = ""
         }
-        client.login(userName!, pw: pw!) { success, errorString in
+        
+        client.login(sender as! UIButton, userName: userName!, pw: pw!) { success, errorString in
             if success {
                 dispatch_async(dispatch_get_main_queue()) {
                     self.performSegueWithIdentifier("loginSegue", sender: sender)
@@ -138,6 +88,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
                 }
             }
         }
+    }
+    
+    func segueToTabController() {
+        //TODO: (?) add a delay so it doesn't segue too fast?
+        print("in seg to tab contrl")
+        performSegueWithIdentifier("loginSegue", sender: nil)
     }
         
     func shakeView(view: UIView){

@@ -130,13 +130,13 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             if success {
                 /* TODO-To send alert message of success -- better if non-modal
                 dispatch_async(dispatch_get_main_queue()) {
-                    // Try this? NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+                    // Try this? NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
                     self.alert(errorString)
                 }
 */
                 self.dismissViewControllerAnimated(true) { () in
                     //TODO: after submit, the table is still not refreshing
-                    NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+                    NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
                 }
             } else {
                 dispatch_async(dispatch_get_main_queue()) {
@@ -147,7 +147,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     }
     
 //    func notifyForRefresh () -> Void {
-//        NSNotificationCenter.defaultCenter().postNotificationName(myNotificationKey, object: self)
+//        NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
 //        return
 //    }
     
