@@ -19,6 +19,8 @@ import FBSDKLoginKit
 
 class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     
+    let loginManager = FBSDKLoginManager()
+    
     /* shared data model */
     var model = OnTheMapData.sharedInstance
     

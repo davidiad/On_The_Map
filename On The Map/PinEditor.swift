@@ -181,6 +181,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             locationTextField.hidden = false
             linkTextField.hidden = true
         } else if state == UIState.Geocoding {
+            fadeViewInAndOut(queryLabel)
+            fadeViewInAndOut(locationTextField)
             geocodingView.hidden = false
             activityView.startAnimating()
             queryLabel.text = "Searching for you"
@@ -190,6 +192,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             locationTextField.hidden = false
             linkTextField.hidden = true
         } else if state == UIState.GeocodingError {
+            stopTheFade(queryLabel)
+            stopTheFade(locationTextField)
             geocodingView.hidden = true
             activityView.stopAnimating()
             queryLabel.text = "Where are you studying today?"
@@ -199,6 +203,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             locationTextField.hidden = false
             linkTextField.hidden = true
         } else if state == UIState.Submit {
+            stopTheFade(queryLabel)
+            stopTheFade(locationTextField)
             activityView.stopAnimating()
             geocodingView.hidden = true
             queryLabel.text = "Enter a URL to share"
@@ -233,4 +239,23 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         }
         super.touchesBegan(touches, withEvent:event)
     }
+    
+    //MARK: Animation
+    func fadeViewInAndOut (view: UIView) {
+        let fade:CABasicAnimation = CABasicAnimation(keyPath: "opacity")
+        fade.duration = 0.65
+        fade.repeatCount = 1000 // large value, so it goes continuously
+        fade.autoreverses = true
+    
+        fade.fromValue = 1.0
+        fade.toValue = 0.2
+        view.layer.addAnimation(fade, forKey: "opacity")
+    }
+    
+    func stopTheFade(view: UIView) {
+        if let _ = view.layer.animationForKey("opacity") {
+            view.layer.removeAnimationForKey("opacity")
+        }
+    }
+
 }

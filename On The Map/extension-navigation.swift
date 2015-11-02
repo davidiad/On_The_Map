@@ -27,9 +27,10 @@ extension UIViewController {
     // MARK: - Bar Button actions
     
     func logoutTapped () {
+        
         let client = UdacityClient.sharedInstance()
+        client.loginManager.logOut() // Logs out from Facebook if needed
         client.udacityLogout()
-        // TODO: do I need a dispatch async, or a completion handler here?
         dismissViewControllerAnimated(true, completion: nil)
     }
     
