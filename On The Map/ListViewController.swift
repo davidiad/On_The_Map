@@ -10,6 +10,9 @@ import UIKit
 
 class ListViewController: UITableViewController {
     
+    /* shared data model */
+    var model = OnTheMapData.sharedInstance
+    
 // MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,6 +112,18 @@ class ListViewController: UITableViewController {
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
             self.tableView.reloadData()
         })
+    }
+    
+    override func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+        // set bg color here
+        // get a sequence of pastel colors
+        let hueValue = model.backgroundHue(indexPath.row)
+        let color = UIColor(hue: hueValue, saturation: 0.35, brightness: 0.9, alpha: 1)
+        cell.backgroundColor = color
+//        let gradient = CAGradientLayer().gradientColor(hueValue)
+//        gradient.frame = cell.bounds
+//        cell.backgroundView = UIView()
+//        cell.backgroundView!.layer.insertSublayer(gradient, atIndex: 0)
     }
     
 

@@ -7,6 +7,7 @@
 //  Reads in raw JSON data as a dictionary and stores it in Swift data structures
 
 import Foundation
+import UIKit
 
 class OnTheMapData {
     static let sharedInstance = OnTheMapData()
@@ -128,6 +129,14 @@ class OnTheMapData {
             
         }
         
+    }
+    
+    func backgroundHue(indexValue: Int) -> CGFloat {
+        var hueValue = (CGFloat(indexValue) * 0.083) + 0.08
+        while hueValue > 1 {
+            hueValue -= 0.87
+        }
+        return hueValue
     }
 //            // Parse the JSON further to determine cause of login error
 //            if let status: AnyObject = userResults.valueForKey("status") {
