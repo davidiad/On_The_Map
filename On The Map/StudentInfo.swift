@@ -37,8 +37,7 @@ struct StudentInfo {
         
         firstName = (data.valueForKey("firstName") as! String)
         lastName = (data.valueForKey("lastName") as! String)
-        //TODO: Since we need first and last names separate when POSTing, eliminate name(combined first and last)
-        //name = (data.valueForKey("firstName") as! String) + " " + (data.valueForKey("lastName") as! String)
+
         if let mapString = data.valueForKey("mapString") as? String {
             location = mapString
         }
@@ -49,9 +48,9 @@ struct StudentInfo {
             lat = latString.doubleValue
         }
         let linkString = data.valueForKey("mediaURL") as! String
-        //link = NSURL.URLWithString(linkString)!
+
         if let url = NSURL(string: linkString) {
             link = url
-        }       // var url = NSURL.URLWithString(linkString)
+        }
     }
 }

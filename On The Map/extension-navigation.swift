@@ -35,7 +35,6 @@ extension UIViewController {
     }
     
     func refreshTapped() {
-        print("refresh tapped")
         let client = UdacityClient.sharedInstance()
         client.getParseStudentInfo() {parseSuccess, parseError in
             if parseSuccess {

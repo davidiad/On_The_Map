@@ -28,20 +28,58 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "segueToTabController", name: segueNotificationKey, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "displayFacebookError", name: segueNotificationKey, object: nil)
         
+//        // Facebook login
+//        if (FBSDKAccessToken.currentAccessToken() != nil) {
+//            // User is already logged in, so go to the next view controller.
+//            dispatch_async(dispatch_get_main_queue()) {
+//                self.performSegueWithIdentifier("loginSegue", sender: nil)
+//            }
+//        } else {
+//            let loginView : FBSDKLoginButton = FBSDKLoginButton()
+//            view.addSubview(loginView)
+//            // set the position of the FB login button relative to a placeholder on the storyboard
+//            //TODO: update the FB button position with the device changes orientation
+//            //TODO: make sure that warning label text won't overlap buttons
+//            loginView.center.x = view.center.x
+//            loginView.center.y = facebookLoginButtonHolder.center.y
+//            
+//            loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
+//            loginView.delegate = client
+//        }
+        
         // Facebook login
+        
+        let loginView : FBSDKLoginButton = FBSDKLoginButton()
+        view.addSubview(loginView)
+        // set the position of the FB login button relative to a placeholder on the storyboard
+        //TODO: update the FB button position with the device changes orientation
+        //TODO: make sure that warning label text won't overlap buttons
+        loginView.center.x = view.center.x
+        loginView.center.y = facebookLoginButtonHolder.center.y
+        
+        loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
+        loginView.delegate = client
+        
+        // if user is already logged in through FB
         if (FBSDKAccessToken.currentAccessToken() != nil) {
-            // User is already logged in, do work such as go to next view controller.
-        } else {
-            let loginView : FBSDKLoginButton = FBSDKLoginButton()
-            view.addSubview(loginView)
-            // set the position of the FB login button relative to a placeholder on the storyboard
-            //TODO: update the FB button position with the device changes orientation
-            //TODO: make sure that warning label text won't overlap buttons
-            loginView.center.x = view.center.x
-            loginView.center.y = facebookLoginButtonHolder.center.y
+            // Code to add a delay, so that user can read msg that already logged in thru FB. Also un/comment the end brace of this, below at bottom of func
+            loginInfoLabel.text = "You are already logged in through Facebook."
+            let seconds = 2.75
+            let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
+            let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
             
-            loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
-            loginView.delegate = client
+            dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+                
+                // here code perfomed with delay
+                
+                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
+                // User is already logged in, so go to the next view controller.
+                self.client.requestWithFacebookToken(FBSDKAccessToken.currentAccessToken().tokenString)
+//                dispatch_async(dispatch_get_main_queue()) {
+//                    self.performSegueWithIdentifier("loginSegue", sender: nil)
+//                }
+                
+            }) // end of delay func
         }
     }
     
@@ -71,10 +109,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         client.login(sender as! UIButton, userName: userName!, pw: pw!) { success, errorString in
             if success {
                 dispatch_async(dispatch_get_main_queue()) {
-                    //self.client.getAllInfo() {success, errorString in
-                       // if success {
-                           self.performSegueWithIdentifier("loginSegue", sender: sender) 
-                       // }
+                    self.performSegueWithIdentifier("loginSegue", sender: sender)
                 }
             } else {
                 dispatch_async(dispatch_get_main_queue()) {

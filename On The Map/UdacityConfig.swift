@@ -67,14 +67,6 @@ class UdacityConfig: NSObject, NSCoding {
                 secureBaseImageURLString = urlString
             } else {return nil}
             
-            if let posterSizesArray = imageDictionary[UdacityClient.JSONResponseKeys.ConfigPosterSizes] as? [String] {
-                posterSizes = posterSizesArray
-            } else {return nil}
-            
-            if let profileSizesArray = imageDictionary[UdacityClient.JSONResponseKeys.ConfigProfileSizes] as? [String] {
-                profileSizes = profileSizesArray
-            } else {return nil}
-            
             dateUpdated = NSDate()
             
         } else {

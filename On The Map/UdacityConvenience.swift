@@ -22,7 +22,6 @@ import Foundation
 extension UdacityClient {
     
     func getUdacityUserKey (sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
-        //TODO: get url string from constants
         // Login is through regular login button
         let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
         request.HTTPMethod = "POST"
@@ -70,7 +69,6 @@ extension UdacityClient {
     }
     
     func getUdacityUserInfo (key: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
-        //TODO: get url string from constants
         var URLString = "https://www.udacity.com/api/users/"
         if let key = self.model.studentInfoToPost?.uniqueKey {
             URLString += key
@@ -80,7 +78,7 @@ extension UdacityClient {
             let request = NSMutableURLRequest(URL: NSURL(string: URLString)!)
             let task = self.session.dataTaskWithRequest(request) { data, response, error in
                 if error != nil { // Handle error...
-                    print("Error???: \(error)")
+                    //print("Error???: \(error)")
                     completionHandler(success: false, errorString: "\(error)")
                     return
                 }

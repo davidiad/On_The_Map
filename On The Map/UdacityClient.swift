@@ -43,7 +43,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
         if ((error) != nil) {
-            print(error)
+            //print(error)
         }
         else if result.isCancelled {
             // Handle cancellations
@@ -51,38 +51,71 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         else {
             if result.grantedPermissions.contains("public_profile") {
                 // Login to Udacity with Facebook token
-                let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-                request.HTTPMethod = "POST"
-                request.addValue("application/json", forHTTPHeaderField: "Accept")
-                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                
-                request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + result.token.tokenString + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
-                
-                let session = NSURLSession.sharedSession()
-                let task = session.dataTaskWithRequest(request) { data, response, error in
-                    if error != nil {
-                        print(error)
-                        return
-                    }
-                    let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-                    
-                    self.extractKey(newData) { success, userKey, errorString in
-                        if success {
-                            self.getAllInfo() { success, errorString in
-                                if success {
-                                    NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
-                                } else {
-                                    NSNotificationCenter.defaultCenter().postNotificationName(facebookErrorNotificationKey, object: self)
-                                }
-                            }
-                        }
-                    }
-                }
-                task.resume()
+                requestWithFacebookToken(result.token.tokenString)
+//                let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
+//                request.HTTPMethod = "POST"
+//                request.addValue("application/json", forHTTPHeaderField: "Accept")
+//                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//                
+//                request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + result.token.tokenString + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
+//                
+//                let session = NSURLSession.sharedSession()
+//                let task = session.dataTaskWithRequest(request) { data, response, error in
+//                    if error != nil {
+//                        print(error)
+//                        return
+//                    }
+//                    let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+//                    
+//                    self.extractKey(newData) { success, userKey, errorString in
+//                        if success {
+//                            self.getAllInfo() { success, errorString in
+//                                if success {
+//                                    NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
+//                                } else {
+//                                    NSNotificationCenter.defaultCenter().postNotificationName(facebookErrorNotificationKey, object: self)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                task.resume()
             }
         }
     }
     
+    // Called after logging in with FB, or when app opens and user is already logged in to FB
+    func requestWithFacebookToken(fbToken: String) {
+        let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
+        request.HTTPMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + fbToken + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
+        
+        let session = NSURLSession.sharedSession()
+        let task = session.dataTaskWithRequest(request) { data, response, error in
+            if error != nil {
+                print(error)
+                return
+            }
+            let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+            
+            self.extractKey(newData) { success, userKey, errorString in
+                if success {
+                    self.getAllInfo() { success, errorString in
+                        if success {
+                            NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
+                        } else {
+                            NSNotificationCenter.defaultCenter().postNotificationName(facebookErrorNotificationKey, object: self)
+                        }
+                    }
+                }
+            }
+        }
+        task.resume()
+    }
+
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
         udacityLogout()
     }
@@ -192,7 +225,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         func getParseStudentInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
             let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation?order=-updatedAt")!)
             request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-            // added XXX to end to force an error for testing
             request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
             let task = session.dataTaskWithRequest(request) { data, response, error in
                 

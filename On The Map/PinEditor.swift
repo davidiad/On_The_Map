@@ -24,9 +24,9 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     }
     
     var annotation:MKAnnotation!
-    var localSearchRequest:MKLocalSearchRequest!
-    var localSearch:MKLocalSearch!
-    var localSearchResponse:MKLocalSearchResponse!
+//    var localSearchRequest:MKLocalSearchRequest!
+//    var localSearch:MKLocalSearch!
+//    var localSearchResponse:MKLocalSearchResponse!
     var error:NSError!
     var pointAnnotation:MKPointAnnotation?
     var pinAnnotationView:MKPinAnnotationView!
@@ -45,17 +45,15 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var geocodingView: UIView!
     @IBOutlet weak var activityView: UIActivityIndicatorView!
     
-    //TODO:- When Geocoding, animate the find location field transparency up and down, to indicate activity
-    
-    @IBAction func browseToLink(sender: AnyObject) {
-        openLinkBrowser()
-    }
-    
-    func openLinkBrowser() {
-        let storyboard = UIStoryboard (name: "Main", bundle: nil)
-        let linkBrowser = storyboard.instantiateViewControllerWithIdentifier("LinkBrowser")
-        presentViewController(linkBrowser, animated: true, completion: nil)
-    }
+//    @IBAction func browseToLink(sender: AnyObject) {
+//        openLinkBrowser()
+//    }
+//    
+//    func openLinkBrowser() {
+//        let storyboard = UIStoryboard (name: "Main", bundle: nil)
+//        let linkBrowser = storyboard.instantiateViewControllerWithIdentifier("LinkBrowser")
+//        presentViewController(linkBrowser, animated: true, completion: nil)
+//    }
     
     @IBAction func findOnMap(sender: AnyObject) {
 
@@ -82,7 +80,6 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(self.locationTextField.text!) { (placemarks, error) -> Void in
             if (error != nil) {
-                //TODO: make sure the state is configured correctly for Geocode error
                 self.configureUIForState(UIState.GeocodingError)
                 self.alert("Could not find that place")
                 return

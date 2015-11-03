@@ -187,13 +187,6 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AUJ-zN-TpC">
-                                        <rect key="frame" x="8" y="78" width="116" height="20"/>
-                                        <state key="normal" title="Browse to link"/>
-                                        <connections>
-                                            <action selector="browseToLink:" destination="aQO-tk-mxK" eventType="touchUpInside" id="wFA-SQ-US4"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="0.72449995098310727" blue="0.92401636237987173" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
@@ -240,40 +233,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6BH-kA-ZQp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1182" y="-336"/>
-        </scene>
-        <!--Link Browser-->
-        <scene sceneID="CSE-SZ-A2L">
-            <objects>
-                <viewController storyboardIdentifier="LinkBrowser" id="ehd-JT-jf2" customClass="LinkBrowser" customModule="On_The_Map" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="RGf-YQ-lKQ"/>
-                        <viewControllerLayoutGuide type="bottom" id="0DD-kH-tuU"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="RjK-wd-TlF">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <webView contentMode="scaleToFill" scalesPageToFit="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3Ab-jl-O63">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </webView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="3Ab-jl-O63" firstAttribute="leading" secondItem="RjK-wd-TlF" secondAttribute="leading" id="AhP-13-cEy"/>
-                            <constraint firstAttribute="trailing" secondItem="3Ab-jl-O63" secondAttribute="trailing" id="LPG-yi-bKg"/>
-                            <constraint firstItem="3Ab-jl-O63" firstAttribute="top" secondItem="RjK-wd-TlF" secondAttribute="top" id="gyg-mY-tVt"/>
-                            <constraint firstItem="0DD-kH-tuU" firstAttribute="top" secondItem="3Ab-jl-O63" secondAttribute="bottom" id="u09-Ui-pRC"/>
-                        </constraints>
-                    </view>
-                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
-                    <connections>
-                        <outlet property="webView" destination="3Ab-jl-O63" id="5Kd-5d-Qng"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="CTW-SN-EQU" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1561" y="-336"/>
         </scene>
         <!--On The Map-->
         <scene sceneID="knr-2M-Ib9">
