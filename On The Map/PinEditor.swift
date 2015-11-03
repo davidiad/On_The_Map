@@ -45,6 +45,13 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var geocodingView: UIView!
     @IBOutlet weak var activityView: UIActivityIndicatorView!
     
+    @IBOutlet weak var linkBrowserButton: UIButton!
+    
+    @IBAction func openLinkBrowser(sender: AnyObject) {
+        performSegueWithIdentifier("segueToLinkBrowser", sender: self)
+    }
+    
+    
 //    @IBAction func browseToLink(sender: AnyObject) {
 //        openLinkBrowser()
 //    }
