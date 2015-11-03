@@ -85,10 +85,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
         udacityLogout()
-        //alert("Facebook log out")
     }
-    
-    // MARK: - GET
     
     func login(sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
         
@@ -266,7 +263,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     } else if let response = response {
                         errorString = "\(invalid) Response: \(response)"
                     }
-                    print(errorString)
+                    //print(errorString)
                     //completionHandler(success: false, userKey: nil, errorString: errorString)
                     return
                 }
@@ -275,15 +272,8 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     //completionHandler(success: false, userKey: nil, errorString: "No user info data was returned by the request to Udacity!")
                     return
                 }
-
-//                if error != nil { // Handle error…
-//                    print("An error has occurred when trying to log out")
-//                    //TODO: Notify the user whether logout was successful
-//                    return
-//                }
-                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
-                //TODO:-verify that logout was successful
+//                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
+//                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
             }
             task.resume()
             model.studentInfoToPost?.uniqueKey = "default"
@@ -358,17 +348,14 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         */
         // MARK: - POST
         
-        // Pass in the whole StudentInfo, rather than each parameter separate -- replaces the above
+        // Add pin to the map
         func postOnTheMap (userInfo: StudentInfo, completionHandler: (success: Bool, errorString: String, error: NSError?) -> Void) {
-            //TODO:- add completion handler to pass errorString
             let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation")!)
             request.HTTPMethod = "POST"
             request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
             request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             
-            // ?Make an array of strings, and then iterate to add to the string? Checking for nil as we go?
-            // <String> += <String>
             var HTTPBodyString = "{\"uniqueKey\": \""
             if let uniqueKey = userInfo.uniqueKey { HTTPBodyString += uniqueKey }
             HTTPBodyString += "\", \"firstName\": \""
@@ -396,13 +383,11 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     completionHandler(success: false, errorString: "Error in POSTing: The Internet connection appears to be offline", error: error)
                     return
                 }
-                //TODO:- Check for created at, and not error in data
                 UdacityClient.parseJSONWithCompletionHandler(data!) {results, error in
                     if error != nil {
                         completionHandler(success: false, errorString: "parsing error", error: error)
                     } else {
                         var messageString = ""
-                        print(results)
                         if let createdAtString = results.valueForKey("createdAt") as? String {
                             messageString = "Successful POST at " + createdAtString
                             completionHandler(success: true, errorString: messageString, error: error)
@@ -414,12 +399,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                 }
             }
             task.resume()
-            /* Examples of data
-            Optional({"createdAt":"2015-10-19T03:18:31.647Z","objectId":"ZZkOnFowB5"} // successful POST
-            Optional({"error":"method not allowed"} // (when mispelled POST)
-            Error when wifi is off:
-            Error Domain=NSURLErrorDomain Code=-1009 "The Internet connection appears to be offline." UserInfo=0x7fb69949f0c0 {NSUnderlyingError=0x7fb6a06c9110 "The operation couldn’t be completed. (kCFErrorDomainCFNetwork error -1009.)", NSErrorFailingURLStringKey=https://api.parse.com/1/classes/StudentLocation, NSErrorFailingURLKey=https://api.parse.com/1/classes/StudentLocation, _kCFStreamErrorDomainKey=12, _kCFStreamErrorCodeKey=8, NSLocalizedDescription=The Internet connection appears to be offline.}
-            */
         }
         
         func taskForPOSTMethod(method: String, parameters: [String : AnyObject], jsonBody: [String:AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
@@ -536,191 +515,3 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             return Singleton.sharedInstance
         }
 }
-
-/* Unused, older code. Delete at some point
-func login(userName: String, pw: String, completionHandlerLogin: (success: Bool, errorString: String?) -> Void) {
-/*
-// Udacity login
-let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-request.HTTPMethod = "POST"
-request.addValue("application/json", forHTTPHeaderField: "Accept")
-request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-/* // hardcoded username and pw
-request.HTTPBody = "{\"udacity\": {\"username\": \"studio@davidiad.com\", \"password\": \"kimba9\"}}".dataUsingEncoding(NSUTF8StringEncoding)
-*/
-let HTTPBodyString = "{\"udacity\": {\"username\": \"" + userName + "\", \"password\": \"" + pw + "\"}}"
-request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
-let session = NSURLSession.sharedSession()
-let task = session.dataTaskWithRequest(request) { data, response, error in
-if error != nil { // Handle error…
-return
-}
-let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-println("First request from Udacity login")
-println(NSString(data: newData, encoding: NSUTF8StringEncoding))
-println("**********************")
-}
-task.resume()
-*/
-taskPOSTUdacityLogin(userName, pw: pw) {success, key, error in
-if success {
-var URLString = "https://www.udacity.com/api/users/"
-if let key = self.model.studentInfoToPost?.uniqueKey {
-URLString += key
-//BEGIN//----------request step 2----- Udacity--public user info
-let request = NSMutableURLRequest(URL: NSURL(string: URLString)!)
-//let session = NSURLSession.sharedSession()
-let task = self.session.dataTaskWithRequest(request) { data, response, error in
-if error != nil { // Handle error...
-print("Error???: \(error)")
-completionHandlerLogin(success: false, errorString: "\(error)")
-return
-}
-let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-//println("2nd Request from Udacity")
-//println(NSString(data: newData, encoding: NSUTF8StringEncoding))
-//println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-self.model.storeUserInfo(newData)
-if let myName = self.model.studentInfoToPost?.firstName {
-print("firstName: \(myName)")
-} else {
-print("Problem reading User Info")
-}
-completionHandlerLogin(success: true, errorString: "Login was successful!")
-
-}
-task.resume()
-//END//----------request step 2----- Udacity--public user info
-} else {
-print("Problem with key?: ukey retrieved: \(self.model.studentInfoToPost?.uniqueKey)")
-print("URLstring: \(URLString)")
-print("Error: \(error)")
-}
-} else {
-completionHandlerLogin(success: false, errorString: "Account not found or invalid credentials.")
-}
-/*  let request2 = NSMutableURLRequest(URL: NSURL(string: URLString)!)
-//let session = NSURLSession.sharedSession()
-let task2 = session.dataTaskWithRequest(request2) { data, response, error in
-if error != nil { // Handle error...
-return
-}
-let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-//println("2nd Request from Udacity")
-//println(NSString(data: newData, encoding: NSUTF8StringEncoding))
-//println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-self.model.readUserInfo(newData)
-}
-task2.resume()
-*/
-
-//            self.taskGETParseStudentInfo()
-}
-/*
-// Use Parse API to get student data
-let request3 = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation")!)
-request3.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-request3.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
-//let session = NSURLSession.sharedSession()
-let task3 = session.dataTaskWithRequest(request3) { data, response, error in
-if error != nil { // Handle error...
-return
-}
-// Store the student data into the model
-self.model.convertJSON(data)
-}
-task3.resume()
-*/
-}
-
-func taskPOSTUdacityLogin (userName: String, pw: String, completionHandler: (success: Bool, key: String?, errorString: String?) -> Void) {
-let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-request.HTTPMethod = "POST"
-request.addValue("application/json", forHTTPHeaderField: "Accept")
-request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-let HTTPBodyString = "{\"udacity\": {\"username\": \"" + userName + "\", \"password\": \"" + pw + "\"}}"
-
-request.HTTPBody = HTTPBodyString.dataUsingEncoding(NSUTF8StringEncoding)
-
-let session = NSURLSession.sharedSession()
-//let requestImmutable = request as NSURLRequest
-let task = session.dataTaskWithRequest(request) { data, response, error in
-//            if error != nil { // Handle error…
-//                completionHandler(success: false, key: nil, errorString: "The Internet connection appears to be offline.")
-//                return
-//            }
-let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-print(NSString(data: newData, encoding: NSUTF8StringEncoding))
-print("**********************")
-//var parsingError: NSError? = nil
-if let results = try! (NSJSONSerialization.JSONObjectWithData(newData, options: .AllowFragments) as? NSDictionary) {
-if let accountDictionary = results.valueForKey("account") as? NSDictionary {
-if let key = accountDictionary.valueForKey("key") as? String {
-self.model.studentInfoToPost?.uniqueKey = key
-completionHandler(success: true, key: key, errorString: "Found the account")
-
-// Step 2 - Using the uniqueKey, get the public user data (firstName, lastName)
-var URLString = "https://www.udacity.com/api/users/"
-//if let key = self.model.studentInfoToPost?.uniqueKey {
-URLString += key
-//BEGIN//----------request step 2----- Udacity--public user info
-let request2 = NSMutableURLRequest(URL: NSURL(string: URLString)!)
-//let session = NSURLSession.sharedSession()
-let task2 = self.session.dataTaskWithRequest(request2) { data2, response, error in
-if error != nil { // Handle error...
-print("Error???: \(error)")
-//completionHandlerLogin(success: false, errorString: "\(error)")
-return
-}
-let newData2 = data2!.subdataWithRange(NSMakeRange(5, data2!.length - 5)) /* subset response data! */
-//println("2nd Request from Udacity")
-//println(NSString(data: newData, encoding: NSUTF8StringEncoding))
-//println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-self.model.storeUserInfo(newData2)
-if let myName = self.model.studentInfoToPost?.firstName {
-print("firstName: \(myName)")
-} else {
-print("Problem reading User Info")
-}
-//completionHandlerLogin(success: true, errorString: "Login was successful!")
-
-}
-task2.resume()
-//END//----------request step 2----- Udacity--public user info
-
-//} else {
-//completionHandler(success: false, key: nil, errorString: "Parsing error?")
-}
-} else {
-// Parse the JSON further to determine cause of login error
-if let status: AnyObject = results.valueForKey("status") {
-if status as! NSObject == 403 {
-if let error403: AnyObject = results.valueForKey("error") {
-completionHandler(success: false, key: nil, errorString: error403 as? String)
-}
-} else if status as! NSObject == 400 {
-if let error400: NSString = results.valueForKey("error") as? NSString {
-let trimmedString: String = error400.substringFromIndex(max(error400.length - 28, 0))
-completionHandler(success: false, key: nil, errorString: trimmedString)
-}
-}
-} else {
-completionHandler(success: false, key: nil, errorString: "Unknown problem with account")
-}
-}
-} else {
-completionHandler(success: false, key: nil, errorString: "Parsing error?")
-}
-}
-task.resume()
-self.getParseStudentInfo() {parseSuccess, parseError in
-if parseSuccess {
-NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
-} else {
-completionHandler(success: false, key: nil, errorString: "Download Failed")
-}
-}
-
-}
-
-*/
