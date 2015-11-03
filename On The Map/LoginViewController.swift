@@ -13,6 +13,7 @@ import FBSDKLoginKit
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
     let client = UdacityClient.sharedInstance()
+    let loginView : FBSDKLoginButton = FBSDKLoginButton()
     
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
@@ -49,14 +50,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         // Facebook login
         
-        let loginView : FBSDKLoginButton = FBSDKLoginButton()
-        view.addSubview(loginView)
         // set the position of the FB login button relative to a placeholder on the storyboard
         //TODO: update the FB button position with the device changes orientation
         //TODO: make sure that warning label text won't overlap buttons
-        loginView.center.x = view.center.x
-        loginView.center.y = facebookLoginButtonHolder.center.y
-        
+        view.addSubview(loginView)
         loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
         loginView.delegate = client
         
@@ -81,6 +78,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 
             }) // end of delay func
         }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        loginView.center.x = view.center.x
+        loginView.center.y = facebookLoginButtonHolder.center.y
     }
     
     @IBAction func login(sender: AnyObject) {
