@@ -19,6 +19,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var facebookLoginButtonHolder: UIView!
+    @IBOutlet weak var loadingView: UIView!
+    @IBOutlet weak var loadingActivityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loginInfoLabel: UILabel!
     
     override func viewDidLoad() {
@@ -27,7 +29,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         // Notified when FB login is done and time to segue to Tabs
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "segueToTabController", name: segueNotificationKey, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "displayFacebookError", name: segueNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "displayFacebookError", name: facebookErrorNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "showActivityViewTrue", name: loginActivityNotificationKey, object: nil)
         
 //        // Facebook login
 //        if (FBSDKAccessToken.currentAccessToken() != nil) {
@@ -51,8 +54,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Facebook login
         
         // set the position of the FB login button relative to a placeholder on the storyboard
-        //TODO: update the FB button position with the device changes orientation
-        //TODO: make sure that warning label text won't overlap buttons
         view.addSubview(loginView)
         loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
         loginView.delegate = client
@@ -60,8 +61,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // if user is already logged in through FB
         if (FBSDKAccessToken.currentAccessToken() != nil) {
             // Code to add a delay, so that user can read msg that already logged in thru FB. Also un/comment the end brace of this, below at bottom of func
-            loginInfoLabel.text = "You are already logged in through Facebook."
-            let seconds = 2.75
+            showActivityView(true)
+            loginInfoLabel.text = "You are already logged in through Facebook. Please wait..."
+            let seconds = 1.5
             let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
             let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
             
@@ -81,6 +83,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     override func viewWillAppear(animated: Bool) {
+        showActivityView(false)
         loginView.center.x = view.center.x
         loginView.center.y = facebookLoginButtonHolder.center.y
     }
@@ -107,14 +110,16 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         } else {
             loginInfoLabel.text = ""
         }
-        
+        showActivityView(true)
         client.login(sender as! UIButton, userName: userName!, pw: pw!) { success, errorString in
             if success {
                 dispatch_async(dispatch_get_main_queue()) {
+                    self.showActivityView(false)
                     self.performSegueWithIdentifier("loginSegue", sender: sender)
                 }
             } else {
                 dispatch_async(dispatch_get_main_queue()) {
+                    self.showActivityView(false)
                     if let alertString = errorString {
                         if alertString == "The Internet connection appears to be offline." {
                             self.alert(errorString!)
@@ -145,15 +150,34 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
 //        }
 //    }
     
-    func displayFacebookError() {
-        loginInfoLabel.text = "You tried tp log in thru FB and there was some kind of problem."
-    }
-    
     func segueToTabController() {
-        //TODO: (?) add a delay so it doesn't segue too fast?
         dispatch_async(dispatch_get_main_queue()) {
+            self.showActivityView(false)
             self.performSegueWithIdentifier("loginSegue", sender: nil)
         }
+    }
+    
+    //MARK:- UI functions
+    
+    func displayFacebookError() {
+        showActivityView(false)
+        loginInfoLabel.text = "You tried to log in through Facebook and there was some kind of problem."
+    }
+    
+    // To show Activity indicator during login and loading
+    func showActivityView (showing: Bool) {
+        loadingView.hidden = !showing
+        if showing {
+            loadingActivityIndicator.startAnimating()
+        } else {
+            loadingActivityIndicator.stopAnimating()
+        }
+    }
+    
+    // parameterless version for easier use with NSNotification
+    func showActivityViewTrue () {
+        loadingView.hidden = false
+        loadingActivityIndicator.startAnimating()
     }
     
     func shakeView(view: UIView){
@@ -171,11 +195,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         shake.fromValue = from_value
         shake.toValue = to_value
         view.layer.addAnimation(shake, forKey: "position")
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     //MARK:- Gesture Recognizer and keyboard functions

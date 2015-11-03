@@ -49,6 +49,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             // Handle cancellations
         }
         else {
+            NSNotificationCenter.defaultCenter().postNotificationName(loginActivityNotificationKey, object: self)
             if result.grantedPermissions.contains("public_profile") {
                 // Login to Udacity with Facebook token
                 requestWithFacebookToken(result.token.tokenString)
@@ -208,7 +209,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                 if let accountDictionary = results!.valueForKey("account") as? NSDictionary {
                     if let key = accountDictionary.valueForKey("key") as? String {
                         self.model.studentInfoToPost?.uniqueKey = key
-                        print("Key has been extracted and stored: \(self.model.studentInfoToPost?.uniqueKey)")
                         completionHandler(success: true, userKey: key, errorString: nil)
                     } else {
                         completionHandler(success: false, userKey: nil, errorString: "parsing error with key")
@@ -295,7 +295,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     } else if let response = response {
                         errorString = "\(invalid) Response: \(response)"
                     }
-                    //print(errorString)
+                    print(errorString)
                     //completionHandler(success: false, userKey: nil, errorString: errorString)
                     return
                 }
@@ -304,8 +304,8 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     //completionHandler(success: false, userKey: nil, errorString: "No user info data was returned by the request to Udacity!")
                     return
                 }
-//                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-//                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
+                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
             }
             task.resume()
             model.studentInfoToPost?.uniqueKey = "default"

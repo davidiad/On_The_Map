@@ -221,9 +221,9 @@
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
-                        <outlet property="activityView" destination="qdl-tx-MME" id="cLW-xm-atw"/>
+                        <outlet property="activityView" destination="xGy-gL-lgK" id="dxE-Nm-hEH"/>
                         <outlet property="findButton" destination="JOd-go-aoo" id="gjc-9b-MaL"/>
-                        <outlet property="geocodingView" destination="4ed-E4-1gs" id="aBB-gE-ZP9"/>
+                        <outlet property="geocodingView" destination="U1v-lJ-Mqy" id="VMp-Mn-EGM"/>
                         <outlet property="linkTextField" destination="TXj-mj-vFr" id="KHh-S5-7bY"/>
                         <outlet property="locationTextField" destination="zpB-v1-rTC" id="RgX-IW-Kiu"/>
                         <outlet property="mapView" destination="Ckl-ze-Mcf" id="wlO-Lc-9T0"/>
@@ -412,6 +412,8 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
                         <outlet property="facebookLoginButtonHolder" destination="45E-gp-yPw" id="YXp-Pp-FhP"/>
+                        <outlet property="loadingActivityIndicator" destination="qdl-tx-MME" id="Hqa-i9-6w4"/>
+                        <outlet property="loadingView" destination="4ed-E4-1gs" id="AVw-CE-Y41"/>
                         <outlet property="loginButton" destination="sSu-LY-du3" id="yH5-Z5-huE"/>
                         <outlet property="loginInfoLabel" destination="ZnU-0A-y8t" id="WNd-an-C7v"/>
                         <outlet property="passwordTextField" destination="VCc-5D-2xJ" id="nLB-gG-bbR"/>

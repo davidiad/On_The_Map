@@ -12,3 +12,4 @@ import Foundation
 let refreshNotificationKey = "refresh_notification_key"
 let segueNotificationKey = "segue_notification_key"
 let facebookErrorNotificationKey = "facebook_error_notification_key"
+let loginActivityNotificationKey = "login_notification_key"
