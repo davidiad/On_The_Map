@@ -42,10 +42,8 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     //MARK:- Facebook Delegate Methods
     
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
-        //print("Calling from FB login Butt")
-        //NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
         if ((error) != nil) {
-            // Process error
+            print(error)
         }
         else if result.isCancelled {
             // Handle cancellations
@@ -63,22 +61,23 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                 let session = NSURLSession.sharedSession()
                 let task = session.dataTaskWithRequest(request) { data, response, error in
                     if error != nil {
-                        // Handle error...
+                        print(error)
                         return
                     }
                     let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-                    print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+                    
                     self.extractKey(newData) { success, userKey, errorString in
                         if success {
                             self.getAllInfo() { success, errorString in
                                 if success {
                                     NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
+                                } else {
+                                    NSNotificationCenter.defaultCenter().postNotificationName(facebookErrorNotificationKey, object: self)
                                 }
                             }
                         }
                     }
                 }
-                
                 task.resume()
             }
         }
@@ -96,29 +95,46 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         self.getUdacityUserKey(sender, userName: userName, pw: pw) { (success, userKey, errorString) in
             
             if success {
-                // Add key from FB login here
-                self.getUdacityUserInfo(userKey!) { (success, errorString) in
+                
+                self.getAllInfo() { success, errorString in
                     
-                    if success {
-                        
-                        self.getParseStudentInfo() {success, errorString in
-                            if success {
-                                // notify map and table to refresh
-                                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
-                                completionHandler(success: success, errorString: errorString)
-                            } else {
-                                completionHandler(success: false, errorString: errorString)
-                            }
-                        }
-                    } else {
-                        completionHandler(success: success, errorString: errorString)
-                    }
+                    completionHandler(success: success, errorString: errorString)
                 }
+
             } else {
                 completionHandler(success: success, errorString: errorString)
             }
         }
     }
+    
+//    func login(sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
+//        
+//        self.getUdacityUserKey(sender, userName: userName, pw: pw) { (success, userKey, errorString) in
+//            
+//            if success {
+//                
+//                self.getUdacityUserInfo(userKey!) { (success, errorString) in
+//                    
+//                    if success {
+//                        
+//                        self.getParseStudentInfo() {success, errorString in
+//                            if success {
+//                                // notify map and table to refresh
+//                                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
+//                                completionHandler(success: success, errorString: errorString)
+//                            } else {
+//                                completionHandler(success: false, errorString: errorString)
+//                            }
+//                        }
+//                    } else {
+//                        completionHandler(success: success, errorString: errorString)
+//                    }
+//                }
+//            } else {
+//                completionHandler(success: success, errorString: errorString)
+//            }
+//        }
+//    }
     
     // Function to call after the Udacity User key has been gotten either from Udacity or through FB login
     func getAllInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
@@ -219,7 +235,8 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             }
             task.resume()
         }
-        
+    
+    //TODO: add completion handler to return any error messages
         func udacityLogout () {
             
             let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
@@ -235,12 +252,36 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             let session = NSURLSession.sharedSession()
             //TODO: guard and swift 2.0 error handling
             let task = session.dataTaskWithRequest(request) { data, response, error in
-                if error != nil { // Handle error…
-                    print("An error has occurred when trying to log out")
-                    //TODO: Notify the user whether logout was successful
+                guard (error == nil) else {
+                    _ = ("There was an error with the Udacity logout request: \(error)")
+                    //completionHandler(success: false, userKey: nil, errorString: errorString)
                     return
                 }
-                let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+                /* GUARD: Did we get a successful 2XX response? */
+                guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
+                    let invalid = "Your request to log out from Udacity returned an invalid response!"
+                    var errorString = invalid
+                    if let response = response as? NSHTTPURLResponse {
+                        errorString = "\(invalid) Status code: \(response.statusCode)"
+                    } else if let response = response {
+                        errorString = "\(invalid) Response: \(response)"
+                    }
+                    print(errorString)
+                    //completionHandler(success: false, userKey: nil, errorString: errorString)
+                    return
+                }
+                /* GUARD: Was there any data returned? */
+                guard let data = data else {
+                    //completionHandler(success: false, userKey: nil, errorString: "No user info data was returned by the request to Udacity!")
+                    return
+                }
+
+//                if error != nil { // Handle error…
+//                    print("An error has occurred when trying to log out")
+//                    //TODO: Notify the user whether logout was successful
+//                    return
+//                }
+                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
                 print(NSString(data: newData, encoding: NSUTF8StringEncoding))
                 //TODO:-verify that logout was successful
             }
@@ -248,7 +289,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             model.studentInfoToPost?.uniqueKey = "default"
             model.studentInfoToPost?.firstName  = "D"
             model.studentInfoToPost?.lastName = "Fault"
-            //TODO: delete the user info, so it really is logged out
         }
         
         /*
