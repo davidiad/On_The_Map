@@ -58,19 +58,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     @IBAction func findOnMap(sender: AnyObject) {
 
         self.configureUIForState(UIState.Geocoding)
-        
-        /* Code to add a delay, for testing UIState. Also un/comment the end brace of this, below at bottom of func
-        // Wait, for testing
-        let seconds = 4.0
-        let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
-        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
-        
-        dispatch_after(dispatchTime, dispatch_get_main_queue(), {
-            
-            // here code perfomed with delay
-         */
        
-        
         // In case there are any exisiting annotations, remove them
         if self.mapView.annotations.count != 0 {
             self.annotation = self.mapView.annotations[0] 
@@ -142,11 +130,6 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             }
         }
     }
-    
-//    func notifyForRefresh () -> Void {
-//        NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
-//        return
-//    }
     
 // MARK: - View Lifecycle
     
@@ -254,5 +237,4 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             view.layer.removeAnimationForKey("opacity")
         }
     }
-
 }

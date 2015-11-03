@@ -43,7 +43,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
         if ((error) != nil) {
-            //print(error)
+            print(error)
         }
         else if result.isCancelled {
             // Handle cancellations
@@ -53,34 +53,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             if result.grantedPermissions.contains("public_profile") {
                 // Login to Udacity with Facebook token
                 requestWithFacebookToken(result.token.tokenString)
-//                let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
-//                request.HTTPMethod = "POST"
-//                request.addValue("application/json", forHTTPHeaderField: "Accept")
-//                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//                
-//                request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + result.token.tokenString + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
-//                
-//                let session = NSURLSession.sharedSession()
-//                let task = session.dataTaskWithRequest(request) { data, response, error in
-//                    if error != nil {
-//                        print(error)
-//                        return
-//                    }
-//                    let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-//                    
-//                    self.extractKey(newData) { success, userKey, errorString in
-//                        if success {
-//                            self.getAllInfo() { success, errorString in
-//                                if success {
-//                                    NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
-//                                } else {
-//                                    NSNotificationCenter.defaultCenter().postNotificationName(facebookErrorNotificationKey, object: self)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                task.resume()
             }
         }
     }
@@ -138,35 +110,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         }
     }
     
-//    func login(sender: UIButton, userName: String, pw: String, completionHandler: (success: Bool, errorString: String?) -> Void) {
-//        
-//        self.getUdacityUserKey(sender, userName: userName, pw: pw) { (success, userKey, errorString) in
-//            
-//            if success {
-//                
-//                self.getUdacityUserInfo(userKey!) { (success, errorString) in
-//                    
-//                    if success {
-//                        
-//                        self.getParseStudentInfo() {success, errorString in
-//                            if success {
-//                                // notify map and table to refresh
-//                                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
-//                                completionHandler(success: success, errorString: errorString)
-//                            } else {
-//                                completionHandler(success: false, errorString: errorString)
-//                            }
-//                        }
-//                    } else {
-//                        completionHandler(success: success, errorString: errorString)
-//                    }
-//                }
-//            } else {
-//                completionHandler(success: success, errorString: errorString)
-//            }
-//        }
-//    }
-    
     // Function to call after the Udacity User key has been gotten either from Udacity or through FB login
     func getAllInfo(completionHandler: (success: Bool, errorString: String?) -> Void) {
         
@@ -193,14 +136,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             completionHandler(success: false, errorString: "The unique user key appears to be incorrect")
         }
     }
-    
-        
-        /* JSON response examples
-        Optional({"account": {"registered": true, "key": "u41464181"}, "session": {"id": "1476243674S27b30af924994d7bb5296b689449bd93", "expiration": "2015-12-12T03:41:14.728500Z"}})
-        Optional({"status": 400, "parameter": "udacity.username", "error": "trails.Error 400: Missing parameter 'username'"})
-        Optional({"status": 400, "parameter": "udacity.password", "error": "trails.Error 400: Missing parameter 'password'"})
-        Optional({"status": 403, "error": "Account not found or invalid credentials."})
-        */
         
         // Helper func to extract the key from the JSON results
         func extractKey(data: NSData, completionHandler: (success: Bool, userKey: String?, errorString: String?) -> Void) {
@@ -312,74 +247,7 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             model.studentInfoToPost?.firstName  = "D"
             model.studentInfoToPost?.lastName = "Fault"
         }
-        
-        /*
-        // Attempting to generalize all GET data's. Is it worth it?
-        func taskForGETData(method: String, parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-        
-        /* 1. Set the parameters */
-        var mutableParameters = parameters
-        mutableParameters[ParameterKeys.ParseAppID] = Constants.ParseAppID
-        mutableParameters[ParameterKeys.ParseApiKey] = Constants.ParseApiKey
-        
-        /* 2/3. Build the URL and configure the request */
-        let urlString = Constants.BaseURLSecure + method // + UdacityClient.escapedParameters(mutableParameters)
-        let url = NSURL(string: urlString)!
-        let request = NSMutableURLRequest(URL: url)
-        request.addValue("QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr", forHTTPHeaderField: "X-Parse-Application-Id")
-        request.addValue("QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY", forHTTPHeaderField: "X-Parse-REST-API-Key")
-        
-        /* 4. Make the request */
-        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
-        
-        /* 5/6. Parse the data and use the data (happens in completion handler) */
-        if let error = downloadError {
-        let newError = UdacityClient.errorForData(data, response: response, error: error)
-        completionHandler(result: nil, error: downloadError)
-        } else {
-        UdacityClient.parseJSONWithCompletionHandler(data, completionHandler: completionHandler)
-        }
-        }
-        
-        /* 7. Start the request */
-        task.resume()
-        
-        return task
-        }
-        */
-        /*
-        func taskForGETMethod(method: String, parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-        
-        /* 1. Set the parameters */
-        var mutableParameters = parameters
-        mutableParameters[ParameterKeys.ParseApiKey] = Constants.ParseApiKey
-        
-        /* 2/3. Build the URL and configure the request */
-        let urlString = Constants.BaseURLSecure + method + UdacityClient.escapedParameters(mutableParameters)
-        let url = NSURL(string: urlString)!
-        let request = NSURLRequest(URL: url)
-        
-        /* 4. Make the request */
-        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
-        
-        /* 5/6. Parse the data and use the data (happens in completion handler) */
-        if let error = downloadError {
-        let newError = UdacityClient.errorForData(data, response: response, error: error)
-        completionHandler(result: nil, error: downloadError)
-        } else {
-        UdacityClient.parseJSONWithCompletionHandler(data, completionHandler: completionHandler)
-        }
-        }
-        
-        /* 7. Start the request */
-        task.resume()
-        
-        return task
-        }
-        
-        */
-        // MARK: - POST
-        
+    
         // Add pin to the map
         func postOnTheMap (userInfo: StudentInfo, completionHandler: (success: Bool, errorString: String, error: NSError?) -> Void) {
             let request = NSMutableURLRequest(URL: NSURL(string: "https://api.parse.com/1/classes/StudentLocation")!)

@@ -120,56 +120,27 @@ class ListViewController: UITableViewController {
         let hueValue = model.backgroundHue(indexPath.row)
         let color = UIColor(hue: hueValue, saturation: 0.35, brightness: 0.9, alpha: 1)
         cell.backgroundColor = color
-//        let gradient = CAGradientLayer().gradientColor(hueValue)
-//        gradient.frame = cell.bounds
-//        cell.backgroundView = UIView()
-//        cell.backgroundView!.layer.insertSublayer(gradient, atIndex: 0)
+        let gradient = CAGradientLayer().gradientColor(hueValue)
+        gradient.frame = cell.bounds
+        cell.backgroundView = UIView()
+        cell.backgroundView!.layer.insertSublayer(gradient, atIndex: 0)
     }
+}
+
+extension CAGradientLayer {
     
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
+    func gradientColor(hueValue: CGFloat) -> CAGradientLayer {
+        let lightestColor = UIColor(hue: hueValue, saturation: 0.23, brightness: 0.95, alpha: 1)
+        let lighterColor = UIColor(hue: hueValue, saturation: 0.33, brightness: 0.925, alpha: 1)
+        let darkerColor = UIColor(hue: hueValue, saturation: 0.4, brightness: 0.9, alpha: 1)
+        
+        let gradientColors: Array <AnyObject> = [lightestColor.CGColor, lighterColor.CGColor, darkerColor.CGColor, lighterColor.CGColor, lightestColor.CGColor]
+        //let gradientLocations: Array <AnyObject> = [0.0, 0.15, 0.5, 0.85, 1.0]
+        
+        let gradientLayer: CAGradientLayer = CAGradientLayer()
+        gradientLayer.colors = gradientColors
+        gradientLayer.locations = [0.0, 0.15, 0.5, 0.85, 1.0]
+        
+        return gradientLayer
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

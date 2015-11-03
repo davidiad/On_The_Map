@@ -72,9 +72,7 @@ extension UdacityClient {
         var URLString = "https://www.udacity.com/api/users/"
         if let key = self.model.studentInfoToPost?.uniqueKey {
             URLString += key
-            //URLString += "forcedErrorForTesting"
-            // Note: If the key were incorrect, there'd be no way of knowing until trying to post with the user info
-            // or check when trying to store the data (first name, last name) in the model
+            
             let request = NSMutableURLRequest(URL: NSURL(string: URLString)!)
             let task = self.session.dataTaskWithRequest(request) { data, response, error in
                 if error != nil { // Handle error...

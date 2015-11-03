@@ -32,25 +32,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "displayFacebookError", name: facebookErrorNotificationKey, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "showActivityViewTrue", name: loginActivityNotificationKey, object: nil)
         
-//        // Facebook login
-//        if (FBSDKAccessToken.currentAccessToken() != nil) {
-//            // User is already logged in, so go to the next view controller.
-//            dispatch_async(dispatch_get_main_queue()) {
-//                self.performSegueWithIdentifier("loginSegue", sender: nil)
-//            }
-//        } else {
-//            let loginView : FBSDKLoginButton = FBSDKLoginButton()
-//            view.addSubview(loginView)
-//            // set the position of the FB login button relative to a placeholder on the storyboard
-//            //TODO: update the FB button position with the device changes orientation
-//            //TODO: make sure that warning label text won't overlap buttons
-//            loginView.center.x = view.center.x
-//            loginView.center.y = facebookLoginButtonHolder.center.y
-//            
-//            loginView.readPermissions = ["public_profile"]  //, "email", "user_friends"]
-//            loginView.delegate = client
-//        }
-        
         // Facebook login
         
         // set the position of the FB login button relative to a placeholder on the storyboard
@@ -139,16 +120,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             }
         }
     }
-    
-//    func completeFBLogin() {
-//        client.getAllInfo(){ success, errorString in
-//            if success {
-//                dispatch_async(dispatch_get_main_queue()) {
-//                    self.performSegueWithIdentifier("loginSegue", sender: nil)
-//                }
-//            }
-//        }
-//    }
     
     func segueToTabController() {
         dispatch_async(dispatch_get_main_queue()) {

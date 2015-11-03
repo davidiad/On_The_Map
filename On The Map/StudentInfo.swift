@@ -24,8 +24,7 @@ struct StudentInfo {
     }
     
     init(data: NSDictionary) {
-        // Sample time/date format
-        //2015-09-06T16:21:08.469Z
+
         if let timestampString = data.valueForKey("updatedAt") as? String {
             let dateFormatter = NSDateFormatter()
             dateFormatter.timeZone = NSTimeZone(name: "UTC")
