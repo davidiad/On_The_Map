@@ -47,8 +47,8 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var linkBrowserButton: UIButton!
     
-    @IBAction func openLinkBrowser(sender: AnyObject) {
-        performSegueWithIdentifier("segueToLinkBrowser", sender: self)
+    @IBAction func openLinkBrowser(sender: AnyObject?) {
+        performSegueWithIdentifier("segueToLinkBrowser", sender: sender)
     }
     
     
@@ -61,6 +61,17 @@ class PinEditor: UIViewController, UITextFieldDelegate {
 //        let linkBrowser = storyboard.instantiateViewControllerWithIdentifier("LinkBrowser")
 //        presentViewController(linkBrowser, animated: true, completion: nil)
 //    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+        if segue.identifier == "segueToLinkBrowser" {
+            let linkBrowser = segue.destinationViewController as! LinkBrowser
+            if linkTextField.text != "" {
+                linkBrowser.link = linkTextField.text
+            } else { // default to Google
+                linkBrowser.link = "http://www.google.com"
+            }
+        }
+    }
     
     @IBAction func findOnMap(sender: AnyObject) {
 
@@ -159,6 +170,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
     
     func configureUIForState(state: UIState) {
         if state == UIState.Find {
+            linkBrowserButton.hidden = true
             activityView.stopAnimating()
             geocodingView.hidden = true
             queryLabel.text = "Where are you studying today?"
@@ -190,6 +202,7 @@ class PinEditor: UIViewController, UITextFieldDelegate {
             locationTextField.hidden = false
             linkTextField.hidden = true
         } else if state == UIState.Submit {
+            linkBrowserButton.hidden = false
             stopTheFade(queryLabel)
             stopTheFade(locationTextField)
             activityView.stopAnimating()
