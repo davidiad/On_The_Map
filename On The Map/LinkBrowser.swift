@@ -42,6 +42,10 @@ class LinkBrowser: UIViewController, UIWebViewDelegate {
         linkTextField.text = webview.request?.URL?.absoluteString
     }
     
+//    override func unwindForSegue(unwindSegue: UIStoryboardSegue, towardsViewController subsequentVC: UIViewController) {
+//        //
+//    }
+//    
 
     /*
     // MARK: - Navigation

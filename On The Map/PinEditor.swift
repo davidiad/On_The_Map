@@ -51,6 +51,10 @@ class PinEditor: UIViewController, UITextFieldDelegate {
         performSegueWithIdentifier("segueToLinkBrowser", sender: sender)
     }
     
+    @IBAction override func unwindForSegue(unwindSegue: UIStoryboardSegue, towardsViewController subsequentVC: UIViewController) {
+            let linkBrowserVC: LinkBrowser  = unwindSegue.sourceViewController as! LinkBrowser
+            linkTextField.text = linkBrowserVC.linkTextField.text
+    }
     
 //    @IBAction func browseToLink(sender: AnyObject) {
 //        openLinkBrowser()

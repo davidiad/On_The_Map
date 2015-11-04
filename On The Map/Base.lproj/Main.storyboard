@@ -316,7 +316,7 @@
                                 <rect key="frame" x="5" y="8" width="146" height="30"/>
                                 <state key="normal" title="return to Pin Editor"/>
                                 <connections>
-                                    <action selector="returnToPinEditor:" destination="oQI-Ou-VGH" eventType="touchUpInside" id="afU-wS-it2"/>
+                                    <segue destination="A1A-lC-kdH" kind="unwind" unwindAction="unwindForSegue:towardsViewController:" id="F3s-bH-zP0"/>
                                 </connections>
                             </button>
                             <textField opaque="NO" clipsSubviews="YES" alpha="0.80000000000000004" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="tyy-OA-L08">
@@ -343,6 +343,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cr0-Iu-1Qs" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="A1A-lC-kdH" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="1702" y="-320"/>
         </scene>
