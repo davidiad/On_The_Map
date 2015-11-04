@@ -15,12 +15,12 @@ class LinkBrowser: UIViewController, UIWebViewDelegate {
     @IBOutlet weak var webview: UIWebView!
     @IBOutlet weak var linkTextField: UITextField!
     
-    @IBAction func returnToPinEditor(sender: AnyObject) {
-        dismissViewControllerAnimated(true, completion: nil)
-//        dismissViewControllerAnimated(true) { () in
-//            viewControllerForUnwindSegueAction(", fromViewController: self, withSender: linkTextField.text)
-//        }
-    }
+//    @IBAction func returnToPinEditor(sender: AnyObject) {
+//        dismissViewControllerAnimated(true, completion: nil)
+////        dismissViewControllerAnimated(true) { () in
+////            viewControllerForUnwindSegueAction(", fromViewController: self, withSender: linkTextField.text)
+////        }
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
