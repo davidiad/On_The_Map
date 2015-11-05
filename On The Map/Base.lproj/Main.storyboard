@@ -190,7 +190,7 @@
                                             <constraint firstAttribute="height" constant="30" id="ZXg-m2-Y42"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="pWZ-DQ-GCa">
                                         <rect key="frame" x="-2" y="77.5" width="120" height="30"/>
@@ -323,7 +323,7 @@
                                 <rect key="frame" x="8" y="58" width="304" height="30"/>
                                 <color key="textColor" red="0.40151515151515149" green="0.40151515151515149" blue="0.40151515151515149" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ySP-si-G6E">
                                 <rect key="frame" x="2" y="28.5" width="150" height="30"/>

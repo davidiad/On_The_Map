@@ -11,13 +11,11 @@ import UIKit
 
 extension UIViewController {
     
-
-    
     func setupNav() {
         
         let leftLogoutBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Logout", style: UIBarButtonItemStyle.Plain, target: self, action: "logoutTapped")
         
-        let rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Pin", style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped")
+        let rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Add Pin", style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped")
         
         let rightRefreshButtonItem:UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Refresh, target: self, action: "refreshTapped")
         self.navigationItem.setRightBarButtonItems([rightRefreshButtonItem,rightAddBarButtonItem], animated: true)
@@ -27,7 +25,7 @@ extension UIViewController {
     // MARK: - Bar Button actions
     
     func logoutTapped () {
-        
+        NSNotificationCenter.defaultCenter().postNotificationName(logoutNotificationKey, object: self)
         let client = UdacityClient.sharedInstance()
         client.loginManager.logOut() // Logs out from Facebook if needed
         client.udacityLogout()

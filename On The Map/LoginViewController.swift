@@ -26,11 +26,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         loginInfoLabel.text = ""
-        
         // Notified when FB login is done and time to segue to Tabs
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "segueToTabController", name: segueNotificationKey, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "displayFacebookError", name: facebookErrorNotificationKey, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "showActivityViewTrue", name: loginActivityNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateLogoutInfoLabel", name: logoutNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "showActivityViewFalse", name: doneLogAndLoadNotificationKey, object: nil)
         
         // Facebook login
         
@@ -43,7 +44,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         if (FBSDKAccessToken.currentAccessToken() != nil) {
             // Code to add a delay, so that user can read msg that already logged in thru FB. Also un/comment the end brace of this, below at bottom of func
             showActivityView(true)
-            loginInfoLabel.text = "You are already logged in through Facebook. Please wait..."
+            loginInfoLabel.text = "You are logged in through Facebook.\nPlease wait while data is downloaded..."
             let seconds = 1.5
             let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
             let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
@@ -52,13 +53,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 
                 // here code perfomed with delay
                 
-                NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
+                //NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
                 // User is already logged in, so go to the next view controller.
-                self.client.requestWithFacebookToken(FBSDKAccessToken.currentAccessToken().tokenString)
-//                dispatch_async(dispatch_get_main_queue()) {
-//                    self.performSegueWithIdentifier("loginSegue", sender: nil)
-//                }
-                
+                self.client.requestWithFacebookToken(FBSDKAccessToken.currentAccessToken().tokenString) { success, errorString in
+                    if success {
+                        print("Succeeded in requests while previously logged in to FB")
+//                        dispatch_async(dispatch_get_main_queue()) {
+//                            self.performSegueWithIdentifier("loginSegue", sender: nil)
+//                        }
+                    } else {
+                        print("Failed in requests while previously logged in to FB")
+                        self.loginInfoLabel.text = errorString
+                    }
+                    
+                }
             }) // end of delay func
         }
     }
@@ -92,6 +100,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             loginInfoLabel.text = ""
         }
         showActivityView(true)
+        loginInfoLabel.text = "Please wait while you are logged in and data is loading"
         client.login(sender as! UIButton, userName: userName!, pw: pw!) { success, errorString in
             if success {
                 dispatch_async(dispatch_get_main_queue()) {
@@ -135,6 +144,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         loginInfoLabel.text = "You tried to log in through Facebook and there was some kind of problem."
     }
     
+    func updateLogoutInfoLabel() {
+        loginInfoLabel.text = "You have been logged out from Udacity and Facebook"
+    }
+    
     // To show Activity indicator during login and loading
     func showActivityView (showing: Bool) {
         loadingView.hidden = !showing
@@ -145,10 +158,17 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    // parameterless version for easier use with NSNotification
+    // parameterless version of showActivityView for easier use with NSNotification (for FB login)
     func showActivityViewTrue () {
         loadingView.hidden = false
         loadingActivityIndicator.startAnimating()
+        loginInfoLabel.text = "Logging in using your Facebook credentials.\nPlease wait while data is downloading."
+    }
+    
+    // parameterless version of showActivityView for easier use with NSNotification (for FB login)
+    func showActivityViewFalse () {
+        loadingView.hidden = true
+        loadingActivityIndicator.stopAnimating()
     }
     
     func shakeView(view: UIView){

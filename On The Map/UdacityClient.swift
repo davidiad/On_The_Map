@@ -46,19 +46,28 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
             print(error)
         }
         else if result.isCancelled {
-            // Handle cancellations
+            print("Login was cancelled")
         }
         else {
             NSNotificationCenter.defaultCenter().postNotificationName(loginActivityNotificationKey, object: self)
             if result.grantedPermissions.contains("public_profile") {
                 // Login to Udacity with Facebook token
-                requestWithFacebookToken(result.token.tokenString)
+                requestWithFacebookToken(result.token.tokenString ) {success, errorString in
+                    if  success {
+                        print("FB request success!")
+                    } else {
+                        print("in LB func: \(errorString)")
+                    }
+                }
+            } else {
+                print("FB permission not granted")
             }
         }
     }
     
     // Called after logging in with FB, or when app opens and user is already logged in to FB
-    func requestWithFacebookToken(fbToken: String) {
+    func requestWithFacebookToken(fbToken: String, completionHandler: (success: Bool, errorString: String?) -> Void ) {
+        NSNotificationCenter.defaultCenter().postNotificationName(loginActivityNotificationKey, object: self)
         let request = NSMutableURLRequest(URL: NSURL(string: "https://www.udacity.com/api/session")!)
         request.HTTPMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -66,23 +75,30 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
         
         request.HTTPBody = ("{\"facebook_mobile\": {\"access_token\": \"" + fbToken + ";\"}}").dataUsingEncoding(NSUTF8StringEncoding)
         
-        let session = NSURLSession.sharedSession()
+        //let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithRequest(request) { data, response, error in
             if error != nil {
                 print(error)
                 return
             }
             let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
+            print("response: \(response)")
+            print("new data: \(NSString(data: newData, encoding: NSUTF8StringEncoding))")
             
             self.extractKey(newData) { success, userKey, errorString in
                 if success {
                     self.getAllInfo() { success, errorString in
                         if success {
+                            completionHandler(success: success, errorString: nil)
                             NSNotificationCenter.defaultCenter().postNotificationName(segueNotificationKey, object: self)
                         } else {
+                            completionHandler(success: success, errorString: "Request for data failed after FB login")
                             NSNotificationCenter.defaultCenter().postNotificationName(facebookErrorNotificationKey, object: self)
                         }
                     }
+                } else {
+                    print("RWFBT: \(errorString)")
+                    completionHandler(success: false, errorString: errorString)
                 }
             }
         }
@@ -149,7 +165,18 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                         completionHandler(success: false, userKey: nil, errorString: "parsing error with key")
                     }
                 } else {
-                    completionHandler(success: false, userKey: nil, errorString: "parsing error with account")
+                    if let resultsString = (results?.description) {
+                        var errorString = "There was an error with this description:\n" + resultsString
+                        // clean up error string
+                        errorString = errorString.stringByReplacingOccurrencesOfString("{", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+                        errorString = errorString.stringByReplacingOccurrencesOfString("}", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+                        completionHandler(success: false, userKey: nil, errorString: errorString)
+                    } else {
+                        completionHandler(success: false, userKey: nil, errorString: "parsing error with account")
+                    }
+                    NSNotificationCenter.defaultCenter().postNotificationName(doneLogAndLoadNotificationKey, object: self)
+                    
+                    
                 }
             } catch {
                 completionHandler(success: false, userKey: nil, errorString: "Could not parse the account info from Udacity")
