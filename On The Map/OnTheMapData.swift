@@ -67,7 +67,12 @@ class OnTheMapData {
     
     // Calculate hue values for use in ListViewController
     func backgroundHue(indexValue: Int) -> CGFloat {
-        var hueValue = (CGFloat(indexValue) * 0.083  * CGFloat(indexValue) * 0.04) + 0.03
+        
+        var hueValue = ( 0.00332 * CGFloat(indexValue) * CGFloat(indexValue) ) + 0.03
+        // Make the first cell just slightly redder
+        if indexValue == 0 {
+            hueValue = 0.023
+        }
         while hueValue > 1 {
             hueValue -= 0.98
         }

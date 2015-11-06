@@ -58,20 +58,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 
                 // here code perfomed with delay
                 
-                //NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
                 // User is already logged in, so go to the next view controller.
                 self.client.requestWithFacebookToken(tokenString) { success, errorString in
-                    if success {
-                        print("Succeeded in requests while previously logged in to FB")
-//                        dispatch_async(dispatch_get_main_queue()) {
-//                            self.performSegueWithIdentifier("loginSegue", sender: nil)
-//                        }
-                    } else {
-                        
-                        print("Failed in requests while previously logged in to FB")
+                    if !success {
                         self.loginInfoLabel.text = errorString
                     }
-                    
                 }
             }) // end of delay func
         }

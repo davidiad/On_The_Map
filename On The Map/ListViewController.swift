@@ -18,49 +18,13 @@ class ListViewController: UITableViewController {
         super.viewDidLoad()
         setupNav()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "reload", name: refreshNotificationKey, object: nil)
-        
-//        navigationItem.leftBarButtonItem = editButtonItem()
-//        var rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Pin", style: UIBarButtonItemStyle.Plain, target: self, action: "pinTapped")
-//        var rightRefreshButtonItem:UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Refresh, target: self, action: "refreshTapped")
-//        self.navigationItem.setRightBarButtonItems([rightRefreshButtonItem,rightAddBarButtonItem], animated: true)
     }
-    
-//    override func viewDidAppear(animated: Bool) {
-//        println("VIEW DID APPEAR")
-//        reload()
-//    }
-    
-//    override func viewWillAppear(animated: Bool) {
-//        println("view WILL appear")
-//        NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
-//        tableView.reloadData()
-//    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    // MARK: - Bar Button actions
-    
-//    override func refreshTapped() {
-//        println("refresh tapped")
-//        //TODO:- update the data in the model
-//        // reload the table data
-//        tableView.reloadData()
-//    }
-//    
-//    override func pinTapped() {
-//        println("pin tapped")
-//        openPinEditor()
-//    }
-//    
-//    override func openPinEditor() {
-//        var storyboard = UIStoryboard (name: "Main", bundle: nil)
-//        var pinEditor = storyboard.instantiateViewControllerWithIdentifier("PinEditor") as! PinEditor
-//        presentViewController(pinEditor, animated: true, completion: nil)
-//    }
-
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -68,7 +32,6 @@ class ListViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         if let dataCount = OnTheMapData.sharedInstance.studentInfoArray?.count {
             return dataCount
@@ -76,8 +39,6 @@ class ListViewController: UITableViewController {
             return 7
         }
     }
-    
-
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) 
@@ -135,7 +96,6 @@ extension CAGradientLayer {
         let darkerColor = UIColor(hue: hueValue, saturation: 0.4, brightness: 0.9, alpha: 1)
         
         let gradientColors: Array <AnyObject> = [lightestColor.CGColor, lighterColor.CGColor, darkerColor.CGColor, lighterColor.CGColor, lightestColor.CGColor]
-        //let gradientLocations: Array <AnyObject> = [0.0, 0.15, 0.5, 0.85, 1.0]
         
         let gradientLayer: CAGradientLayer = CAGradientLayer()
         gradientLayer.colors = gradientColors

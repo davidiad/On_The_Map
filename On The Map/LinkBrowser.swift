@@ -15,13 +15,6 @@ class LinkBrowser: UIViewController, UIWebViewDelegate {
     @IBOutlet weak var webview: UIWebView!
     @IBOutlet weak var linkTextField: UITextField!
     
-//    @IBAction func returnToPinEditor(sender: AnyObject) {
-//        dismissViewControllerAnimated(true, completion: nil)
-////        dismissViewControllerAnimated(true) { () in
-////            viewControllerForUnwindSegueAction(", fromViewController: self, withSender: linkTextField.text)
-////        }
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         webview.delegate = self
@@ -29,33 +22,13 @@ class LinkBrowser: UIViewController, UIWebViewDelegate {
     
     override func viewDidAppear(animated: Bool) {
         // Google will be opened as a default, allowing browsing
-        //webview.loadRequest(NSURLRequest(URL: NSURL(string: "http://www.google.com")!))
         // If the user has entered a valid address, that will open
         if let currentLink = link {
             webview.loadRequest(NSURLRequest(URL: NSURL(string: currentLink)!))
-           // print(webview.request?.URL?.absoluteString)
         }
     }
     
     func webViewDidFinishLoad(webView: UIWebView) {
-        //print(webview.request?.URL?.absoluteString)
         linkTextField.text = webview.request?.URL?.absoluteString
     }
-    
-//    override func unwindForSegue(unwindSegue: UIStoryboardSegue, towardsViewController subsequentVC: UIViewController) {
-//        //
-//    }
-//    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
-
 }
