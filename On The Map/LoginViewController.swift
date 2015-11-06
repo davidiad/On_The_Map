@@ -32,6 +32,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "showActivityViewTrue", name: loginActivityNotificationKey, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateLogoutInfoLabel", name: logoutNotificationKey, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "showActivityViewFalse", name: doneLogAndLoadNotificationKey, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "showMessage:", name: loginMessageNotificationKey, object: nil)
         
         // Facebook login
         
@@ -41,8 +42,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         loginView.delegate = client
         
         // if user is already logged in through FB
-        if (FBSDKAccessToken.currentAccessToken() != nil) {
-            // Code to add a delay, so that user can read msg that already logged in thru FB. Also un/comment the end brace of this, below at bottom of func
+        guard FBSDKAccessToken.currentAccessToken() != nil else {
+            return
+        }
+        
+        if let tokenString = FBSDKAccessToken.currentAccessToken().tokenString {
+        // Code to add a delay, so that user can read msg that already logged in thru FB. Also un/comment the end brace of this, below at bottom of func
             showActivityView(true)
             loginInfoLabel.text = "You are logged in through Facebook.\nPlease wait while data is downloaded..."
             let seconds = 1.5
@@ -55,13 +60,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 
                 //NSNotificationCenter.defaultCenter().postNotificationName(refreshNotificationKey, object: self)
                 // User is already logged in, so go to the next view controller.
-                self.client.requestWithFacebookToken(FBSDKAccessToken.currentAccessToken().tokenString) { success, errorString in
+                self.client.requestWithFacebookToken(tokenString) { success, errorString in
                     if success {
                         print("Succeeded in requests while previously logged in to FB")
 //                        dispatch_async(dispatch_get_main_queue()) {
 //                            self.performSegueWithIdentifier("loginSegue", sender: nil)
 //                        }
                     } else {
+                        
                         print("Failed in requests while previously logged in to FB")
                         self.loginInfoLabel.text = errorString
                     }
@@ -139,6 +145,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     //MARK:- UI functions
     
+    // display message on login screen that was passed through NSNotifications
+    func showMessage(n:NSNotification) {
+        if let message = n.userInfo?["message"] as? String {
+            loginInfoLabel.text = message
+        }
+    }
+    
     func displayFacebookError() {
         showActivityView(false)
         loginInfoLabel.text = "You tried to log in through Facebook and there was some kind of problem."
@@ -146,6 +159,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     func updateLogoutInfoLabel() {
         loginInfoLabel.text = "You have been logged out from Udacity and Facebook"
+    }
+    
+    func fbLoginCancelled() {
+        loginInfoLabel.text = "Facebook Login was cancelled"
     }
     
     // To show Activity indicator during login and loading

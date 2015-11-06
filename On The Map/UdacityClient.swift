@@ -42,11 +42,12 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
     //MARK:- Facebook Delegate Methods
     
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
+        var message: String?
         if ((error) != nil) {
-            print(error)
+            message = error.description
         }
         else if result.isCancelled {
-            print("Login was cancelled")
+            message = "Facebook login was cancelled!"
         }
         else {
             NSNotificationCenter.defaultCenter().postNotificationName(loginActivityNotificationKey, object: self)
@@ -54,15 +55,19 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                 // Login to Udacity with Facebook token
                 requestWithFacebookToken(result.token.tokenString ) {success, errorString in
                     if  success {
-                        print("FB request success!")
+                        message = "FB request success!"
                     } else {
-                        print("in LB func: \(errorString)")
+                        message = ("A Facebook loginButton error occurred: \(errorString)")
                     }
                 }
             } else {
-                print("FB permission not granted")
+                message = "Facebook permission not granted"
             }
         }
+        guard let messageToSend = message else {
+            return
+        }
+        NSNotificationCenter.defaultCenter().postNotificationName(loginMessageNotificationKey, object: self, userInfo: ["message": messageToSend])
     }
     
     // Called after logging in with FB, or when app opens and user is already logged in to FB
@@ -82,8 +87,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                 return
             }
             let newData = data!.subdataWithRange(NSMakeRange(5, data!.length - 5)) /* subset response data! */
-            print("response: \(response)")
-            print("new data: \(NSString(data: newData, encoding: NSUTF8StringEncoding))")
             
             self.extractKey(newData) { success, userKey, errorString in
                 if success {
@@ -97,7 +100,6 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                         }
                     }
                 } else {
-                    print("RWFBT: \(errorString)")
                     completionHandler(success: false, errorString: errorString)
                 }
             }
@@ -257,17 +259,17 @@ class UdacityClient : NSObject, FBSDKLoginButtonDelegate {
                     } else if let response = response {
                         errorString = "\(invalid) Response: \(response)"
                     }
-                    print(errorString)
+                    NSNotificationCenter.defaultCenter().postNotificationName(loginMessageNotificationKey, object: self, userInfo: ["message": errorString])
                     //completionHandler(success: false, userKey: nil, errorString: errorString)
                     return
                 }
                 /* GUARD: Was there any data returned? */
-                guard let data = data else {
+                guard let _ = data else {
                     //completionHandler(success: false, userKey: nil, errorString: "No user info data was returned by the request to Udacity!")
                     return
                 }
-                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
-                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
+//                let newData = data.subdataWithRange(NSMakeRange(5, data.length - 5)) /* subset response data! */
+//                print(NSString(data: newData, encoding: NSUTF8StringEncoding))
             }
             task.resume()
             model.studentInfoToPost?.uniqueKey = "default"
